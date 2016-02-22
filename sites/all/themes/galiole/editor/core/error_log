@@ -1,0 +1,12 @@
+[03-Oct-2010 14:10:26] PHP Warning:  opendir(/sites/all/themes/galiole) [<a href='function.opendir'>function.opendir</a>]: failed to open dir: No such file or directory in /home/easysite/public_html/galilole2/sites/all/themes/galiole/editor/core/controller.php on line 248
+[03-Oct-2010 14:10:26] PHP Warning:  readdir(): supplied argument is not a valid Directory resource in /home/easysite/public_html/galilole2/sites/all/themes/galiole/editor/core/controller.php on line 252
+[03-Oct-2010 14:10:26] PHP Warning:  closedir(): supplied argument is not a valid Directory resource in /home/easysite/public_html/galilole2/sites/all/themes/galiole/editor/core/controller.php on line 266
+[03-Oct-2010 14:10:53] PHP Warning:  opendir(/sites/all/themes/galiole/) [<a href='function.opendir'>function.opendir</a>]: failed to open dir: No such file or directory in /home/easysite/public_html/galilole2/sites/all/themes/galiole/editor/core/controller.php on line 248
+[03-Oct-2010 14:10:53] PHP Warning:  readdir(): supplied argument is not a valid Directory resource in /home/easysite/public_html/galilole2/sites/all/themes/galiole/editor/core/controller.php on line 252
+[03-Oct-2010 14:10:53] PHP Warning:  closedir(): supplied argument is not a valid Directory resource in /home/easysite/public_html/galilole2/sites/all/themes/galiole/editor/core/controller.php on line 266
+[08-Oct-2010 15:13:43] PHP Warning:  Invalid argument supplied for foreach() in /home/easysite/public_html/galilole2/sites/all/themes/galiole/editor/core/Parser2.php on line 237
+[08-Oct-2010 15:13:43] PHP Warning:  Invalid argument supplied for foreach() in /home/easysite/public_html/galilole2/sites/all/themes/galiole/editor/core/Parser2.php on line 237
+[08-Oct-2010 15:13:43] PHP Warning:  Invalid argument supplied for foreach() in /home/easysite/public_html/galilole2/sites/all/themes/galiole/editor/core/Parser2.php on line 237
+[08-Oct-2010 15:13:43] PHP Warning:  Invalid argument supplied for foreach() in /home/easysite/public_html/galilole2/sites/all/themes/galiole/editor/core/Parser2.php on line 237
+[08-Oct-2010 15:13:43] PHP Warning:  Invalid argument supplied for foreach() in /home/easysite/public_html/galilole2/sites/all/themes/galiole/editor/core/Parser2.php on line 237
+[08-Oct-2010 15:13:43] PHP Warning:  Invalid argument supplied for foreach() in /home/easysite/public_html/galilole2/sites/all/themes/galiole/editor/core/Parser2.php on line 237

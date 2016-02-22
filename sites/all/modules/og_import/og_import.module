@@ -1,0 +1,225 @@
+<?php
+
+function og_import_menu() {
+	$items = array();
+	
+  $items['admin/build/og_import'] = array(
+    'title' => 'Terms 2 OG',
+    'description' => 'Convert Terms To Organic Groups.',
+    'access arguments' => array('access administration pages'),
+    'page callback' => 'og_import_admin',
+    //'page arguments' => array('haimporter_admin'),
+    'type' => MENU_NORMAL_ITEM,
+    //'file' => 'haimporter.admin.inc',
+  );
+  
+//  $items['admin/build/haimporter/correct'] = array(
+//    'title' => 'correct importorted content',
+//    'description' => 'import content.',
+//    'access arguments' => array('access administration pages'),
+//    'page callback' => 'haimporter_correct',
+//    //'page arguments' => array('haimporter_admin'),
+//    'type' => MENU_CALLBACK
+//    //'file' => 'haimporter.admin.inc',
+//  );
+  
+  
+//  $items['admin/build/block/delete-menu-block'] = array(
+//    'title' => 'Delete menu block',
+//    'access arguments' => array('administer blocks'),
+//    'page callback' => 'drupal_get_form',
+//    //'page arguments' => array('menu_block_delete'),
+//    'type' => MENU_CALLBACK,
+//    //'file' => 'menu_block.admin.inc',
+//  );
+//  $items['admin/settings/menu_block'] = array(
+//    'title' => 'Menu block',
+//    'description' => 'Configure menu block.',
+//    'access arguments' => array('administer blocks'),
+//    'page callback' => 'drupal_get_form',
+//    //'page arguments' => array('menu_block_admin_settings_form'),
+//    'type' => MENU_NORMAL_ITEM,
+//    //'file' => 'menu_block.admin.inc',
+//  );
+  return $items;
+}
+
+
+function og_import_admin(){
+	
+	
+	return 'admin';
+	
+	$result = db_query('SELECT n.nid FROM {node} n WHERE n.type = '."'organic_group'".'');
+    $nodes = array();
+    
+    $connections = array();
+    
+    $i = 0;
+    while ($og = db_fetch_object($result))
+    {
+       $og = node_load($og->nid);
+       //$nodes[] = $og;
+       
+       $tid = $og->field_term_id[0]['value'];
+       
+       
+       $r = db_query("SELECT tn.nid FROM {term_node} tn WHERE tn.tid = {$tid}");
+       
+       //$r = taxonomy_select_nodes(array($tid),null,0,false );
+		while ($obj = db_fetch_object($r)) {
+	      // get info from the node
+	      //$n = node_load(array('nid' => $obj->nid));
+	     // Zend_Debug::dump( $n->nid );
+	      //Zend_Debug::dump( $obj->nid , 'term' . $tid );
+	      // display titles and links to the node
+	      //$items[] = l($node->title, "node/". $node->nid);
+	      
+	      $connections[$obj->nid][] = $og->nid;
+	      
+	      $i++;
+	      /**
+	       * here i need to tell the node that it is belonginig to the og group
+	       */
+	      
+	      
+	    }
+    }
+
+    
+	//$nodes = node_load(array("type" => '' ) );
+	
+	//Zend_Debug::dump( $i++ );
+	//Zend_Debug::dump( $connections );
+	//Zend_Debug::dump( $nodes );
+	
+	foreach ($connections as $nid => $gids) {
+		foreach ($gids as $gid) {
+		
+			// Zend_Debug::dump( $gid , $nid );	
+			
+			$sql = "INSERT INTO {og_ancestry} (nid, group_nid) VALUES (%d, %d)";
+   			db_query($sql,$nid, $gid);
+		}
+	}
+	die(__function__);
+	
+	
+	//$node = node_load(33735);
+	//Zend_Debug::dump( $node );
+	//die();
+	
+	$vocs = taxonomy_get_vocabularies();
+	
+	//
+	
+	$vid = 10;
+	
+	$tree = taxonomy_get_tree($vid);
+	
+	/**
+	 * store term_id connection with group_id 
+	 */
+	$map = array();
+	foreach ($tree as $term ) {
+		$og_id = og_import_admin_create_og( $term );
+		
+		$map[$term->tid] = $og_id;
+		
+	}
+	
+	
+	/**
+	 * store the map or recreate it 
+	 */
+	
+	
+	/**
+	 * go over the map,
+	 * find all nodes with termid
+	 */
+	
+	foreach ($map as $og) {
+		$result = taxonomy_select_nodes(array($og->term_id) );
+		while ($obj = db_fetch_object($result)) {
+	      // get info from the node
+	      $node = node_load(array('nid' => $obj->nid));
+	      // display titles and links to the node
+	      //$items[] = l($node->title, "node/". $node->nid);
+	      
+	      /**
+	       * here i need to tell the node that it is belonginig to the og group
+	       */
+	      
+	      
+	    }
+	    // theme the list using the standard built-in list theme
+	}
+	
+	return "<p>" . __function__ . "</p>";
+}
+
+/**
+ * creates a og from information in term
+ *
+ * @param unknown_type $term
+ */
+function og_import_admin_create_og( $term ){
+	
+	Zend_Debug::dump( $term );
+	
+	$node = new stdClass();
+	$node->type = 'organic_group';
+	$node->uid = '9'; /* this is yani */
+	$node->language = 'he'; 
+	$node->title = $term->name;
+	$node->field_term_id[]['value'] = $term->tid;
+	$node->body = $term->description;
+	$node->og_description = $term->description;
+	$node->og_selective = 2;
+	$node->og_theme ="";
+	$node->og_register =0;
+	$node->og_directory =1;
+	$node->og_language ="";
+	$node->og_private =0;
+	//$node->og_groups = array(10 => 10);
+	
+	
+	$node = (array) $node;
+	
+	
+	
+	
+	if ($node = node_submit($node)) {
+		$node->uid = 9;
+		Zend_Debug::dump( $node );
+	   $id = node_save($node);
+	    Zend_Debug::dump( $node );
+	    Zend_Debug::dump( $id );
+	}
+	
+	
+
+//	$node = array(
+//		'type' => 'organic_group',
+//		'uid' => 9,
+//		'title' => $term->name,
+//	
+//	);
+//	Zend_Debug::dump( $node );
+//	
+//	try{
+//		$id = node_save($node);
+//		Zend_Debug::dump( $id );
+//		Zend_Debug::dump( $node->id );
+//	} catch (Exception $e ){
+//		Zend_Debug::dump( $e );
+//	}
+	//
+
+
+	
+	
+	return $node->id;
+	
+}

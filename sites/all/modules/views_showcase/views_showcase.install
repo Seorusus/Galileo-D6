@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * Implements hook_requirements().
+ */
+function views_showcase_requirements($phase) {
+  $requirements = array();
+  // Ensure translations do not break at install time
+  $t = get_t();
+
+  if (module_exists('libraries')) {
+    $requirements['cycle']['title'] = $t('Cycle library');
+    $libraries = libraries_get_libraries();
+    if (isset($libraries['cycle'])) {
+      $requirements['cycle']['value'] = $t('Installed');
+      $requirements['cycle']['severity'] = REQUIREMENT_OK;
+    }
+    else {
+      $requirements['cycle']['value'] = $t('Not installed');
+      $requirements['cycle']['severity'] = REQUIREMENT_ERROR;
+      $requirements['cycle']['description'] = $t('Please download the Cycle library from <a href="@url">@url</a> and place it in <code>sites/all/libraries/cycle</code>.', array('@url' => 'http://malsup.com/jquery/cycle/'));
+    }
+
+    if (isset($libraries['easing'])) {
+      $requirements['easing']['value'] = $t('Installed');
+      $requirements['easing']['severity'] = REQUIREMENT_OK;
+    }
+    else {
+      $requirements['easing']['value'] = $t('Not installed');
+      $requirements['easing']['severity'] = REQUIREMENT_ERROR;
+      $requirements['easing']['description'] = $t('Please download the Easing library from <a href="@url">@url</a> and place it in <code>sites/all/libraries/easing</code>.', array('@url' => 'http://gsgd.co.uk/sandbox/jquery/easing/'));
+    }
+  }
+
+  return $requirements;
+}

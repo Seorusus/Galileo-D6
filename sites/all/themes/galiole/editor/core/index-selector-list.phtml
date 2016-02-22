@@ -1,0 +1,12 @@
+<? 
+$id = 0;
+foreach ( $parser->parsed['css'] as $selector => $sel): 
+
+	
+	//$selecto = str_replace('{','', $selector[0])
+?>
+	<li title="<?= $selector; ?>" class="css-selctor" id="css-selctor-<?= $id++; ?>"><?= $selector; ?></li>
+
+<? endforeach; ?>
+<? //print_r($parser->css); ?>
+

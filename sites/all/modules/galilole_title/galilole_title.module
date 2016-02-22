@@ -1,0 +1,41 @@
+<?php
+// $Id: galilole_title.module,v 1.1.2.1 2009/10/11 20:41:11 roetzi Exp $
+// is new is the name of the form ??
+
+
+function galilole_title_form_alter(&$form, &$form_state, $form_id){
+//function galilole_title_form_new_node_form_alter(&$form, &$form_state){
+
+//$form['form_id'] = array(
+//  '#type' => 'textfield',
+//  '#title' => '',
+//  '#default_value' => $form_id,
+//  '#weight' => 999,
+//);
+
+if ($form_id == 'new_node_form'){
+
+//$out = strip_tags(print_r($form, TRUE));
+//print '<textarea cols="100" rows="40">'. $out .'</textarea>';
+$form['title']['#maxlength']= 50;
+$form['title']['#size']= 70;
+
+//echo "here we are in :  " . $form;
+
+//$form['title']['#required'] = true;
+//$form['title']['#value'] = '' ;
+
+//$form['title']['#access'] = false;
+}
+
+}
+
+
+//
+//function galilole_title_page() {
+
+//echo "here in form";
+
+//exit();
+
+//}

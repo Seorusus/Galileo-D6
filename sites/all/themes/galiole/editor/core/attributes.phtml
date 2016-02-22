@@ -1,0 +1,395 @@
+<div id="tabs" style="width:600px;direction:ltr;">
+	
+		<ul>
+			<li><a href="#tabs-1">Background</a></li>
+			<li><a href="#tabs-2">Border</a></li>
+			<li><a href="#tabs-3">Dimension, Spacing and Positioning</a></li>
+			<li><a href="#tabs-4">Font and Text</a></li>
+			<li><a href="#tabs-5">List</a></li>
+		</ul>
+		
+		<div id="tabs-1">
+			
+			<table>
+				<tr>
+					<td>color</td>
+					<td>
+					<?= $this->formText('background-color' , null , array('style'=>'display:inline;', 'class' => 'color {pickerFaceColor:"transparent",pickerFace:3,pickerBorder:0,pickerInsetColor:"black"}'));?>
+					<span id="transparent" style="cursor:pointer;">transparent?</span>
+					</td>
+				</tr>
+				<tr>
+					<td>image</td>
+					<td>
+					<?//= $this->formText( 'background-image' , null );?>
+					<?= $this->formCkFinder( 'background-image' , null );?>
+					</td>
+				</tr>
+				<tr>
+					<td>position</td>
+					<td>
+						<div style="position:relative;width:66px;height:66px;float:left;">
+							<div id="positionTableDiv" style="position:absolute;left:0;top:0;width:66px;height:66px;z-index:500;"></div>
+								<div id="positionTable" style="position:absolute;left:0;top:0;z-index:1000;width:66px;height:66px;">
+								<? for($a =1; $a <10; $a++){?>
+									<div style="float:left;width:20px;height:20px;" id="<?= $a ?>">&nbsp;</div>
+									<?};?>
+								</div>
+						</div>
+						<div style="float:left;margin-left:10px;">
+							<?= $this->formText('background-position' , null, array('style'=>'width:40px;'));?>
+							
+							<div id="tmpContent"></div>
+						</div>
+						
+					</td>
+				</tr>
+				<tr>
+					<td>repeat</td>
+					<td>
+					<?= $this->formSelect( 'background-repeat' , null, null, array('' => '','repeat' => 'repeat','repeat-x' => 'repeat-x','repeat-y' => 'repeat-y','no-repeat' => 'no-repeat','inherit' => 'inherit' ) );?>
+					</td>
+				</tr>
+				<tr>
+					<td>attachment</td>
+					<td>
+					<?= $this->formSelect( 'background-attachment' , null ,null , array('' => '', 'scroll' => 'scroll', 'fixed' => 'fixed', 'inherit' => 'inherit'));?>
+					</td>
+				</tr>
+			</table>
+			
+		</div>
+		
+		<div id="tabs-2">
+			
+			<div style="float:left;margin-right:10px;border:1px solid transparent;">
+				uniform border? 
+			</div>
+			<!--<div style="float:left;margin-right:10px;border:1px solid transparent;">
+				<input id="uniformSelect" type="checkbox" name="uniform" value="uniform"/>
+			</div>-->
+			<div style="clear:both;"></div>
+			<div style="float:left;margin-right:10px;border:1px solid transparent;">
+				<table>
+					<tr>
+						<td width="50px">top:</td>
+						<td><div id="topBorderWidth" style="border:1px solid red;background:transparent;width:80px;"></div></td>
+						<td><?= $this->formText('border-top-width' , null, array('style'=>'width:30px;', 'class' => 'inputWidth'));?></td>
+						<td><?= $this->formText('border-top-color' , null , array('style'=> 'width:50px;','class' => 'borderColor color {pickerFaceColor:"transparent",pickerFace:3,pickerBorder:0,pickerInsetColor:"black"}'));?></td>
+						<td><?= $this->formSelect( 'border-top-style' , null , array('class' => 'border-style') ,  $borderStyle );?></td>
+					</tr>
+				</table>
+				<table id="hideWhenUnified">
+					<tr>
+						<td width="50px">right:</td>
+						<td><div id="rightBorderWidth" style="border:1px solid red;background:transparent;width:80px;"></div></td>
+						<td><?= $this->formText('border-right-width' , null, array('style'=>'width:30px;', 'class' => 'inputWidth'));?></td>
+						<td><?= $this->formText('border-right-color' , null , array('style'=> 'width:50px;','class' => 'borderColor color {pickerFaceColor:"transparent",pickerFace:3,pickerBorder:0,pickerInsetColor:"black"}'));?></td>
+						<td><?= $this->formSelect( 'border-right-style' , null , array('class' => 'border-style') , $borderStyle );?></td>
+					</tr>
+					<tr>
+						<td width="50px">bottom:</td>
+						<td><div id="bottomBorderWidth" style="border:1px solid red;background:transparent;width:80px;"></div></td>
+						<td><?= $this->formText('border-bottom-width' , null, array('style'=>'width:30px;', 'class' => 'inputWidth'));?></td>
+						<td><?= $this->formText('border-bottom-color' , null , array('style'=> 'width:50px;','class' => 'borderColor color {pickerFaceColor:"transparent",pickerFace:3,pickerBorder:0,pickerInsetColor:"black"}'));?></td>
+						<td><?= $this->formSelect( 'border-bottom-style' , null , array('class' => 'border-style') , $borderStyle );?></td>
+					</tr>
+					<tr>
+						<td width="50px">left:</td>
+						<td><div id="leftBorderWidth" style="border:1px solid red;background:transparent;width:80px;"></div></td>
+						<td><?= $this->formText('border-left-width' , null, array('style'=>'width:30px;', 'class' => 'inputWidth' ));?></td>
+						<td><?= $this->formText('border-left-color' , null , array('style'=> 'width:50px;', 'class' => 'borderColor color {pickerFaceColor:"transparent",pickerFace:3,pickerBorder:0,pickerInsetColor:"black"}'));?></td>
+						<td><?= $this->formSelect( 'border-left-style' , null , array('class' => 'border-style') , $borderStyle );?></td>
+						
+					</tr>
+				</table>
+			</div>
+			<div style="clear:both;"></div>
+			<div id="borderSelectBox" style="position:relative;float:left;margin-right:10px;width:140px;height:140px;">
+			</div>
+		</div>
+		
+		
+		<div id="tabs-3">
+			<table cellpadding="0" cellspacing="0" style="border-bottom:1px solid #212121;font-size:10px;">
+				<tr>
+					<td  valign="top" align="left" style="border-right:1px solid #212121;border-bottom:1px solid #212121;">
+						<table>
+							<tr>
+								<td valign="top" align="left" style="border-bottom:1px solid #212121;">Dimension</td>
+							</tr>
+							<tr>
+								<td valign="top" align="left">
+									<table>
+										<tr>
+											<td>Height:</td>
+											<td><?= $this->formText('height' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+										<tr>
+											<td>Width:</td>
+											<td><?= $this->formText('width' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+										<tr>
+											<td>min-height:</td>
+											<td><?= $this->formText('min-height' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+										<tr>
+											<td>min-width:</td>
+											<td><?= $this->formText('min-width' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td  valign="top" align="left" style="border-right:1px solid #212121;border-bottom:1px solid #212121;">
+						<table>
+							<tr>
+								<td  valign="top" align="left" style="border-bottom:1px solid #212121;">Margin</td>
+							</tr>
+							<tr>
+								<td  valign="top" align="left">
+									<table>
+										<tr>
+											<td>margin-top</td>
+											<td><?= $this->formText('margin-top' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+										<tr>
+											<td>margin-right</td>
+											<td><?= $this->formText('margin-right' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+										<tr>
+											<td>margin-bottom</td>
+											<td><?= $this->formText('margin-bottom' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+										<tr>
+											<td>margin-left</td>
+											<td><?= $this->formText('margin-left' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td  valign="top" align="left" style="border-bottom:1px solid #212121;">
+						<table>
+							<tr>
+								<td  valign="top" align="left" style="border-bottom:1px solid #212121;">Padding</td>
+							</tr>
+							<tr>
+								<td  valign="top" align="left">
+									<table>
+										<tr>
+											<td>padding-top</td>
+											<td><?= $this->formText('padding-top' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+										<tr>
+											<td>padding-right</td>
+											<td><?= $this->formText('padding-right' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+										<tr>
+											<td>padding-bottom</td>
+											<td><?= $this->formText('padding-bottom' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+										<tr>
+											<td>padding-left</td>
+											<td><?= $this->formText('padding-left' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td  valign="top" align="left" style="border-right:1px solid #212121;">
+						<table>
+							<tr>
+								<td>position:</td>
+								<td><?= $this->formSelect( 'position' , null , null , array('' => '', 'absolute' => 'absolute', 'fixed' => 'fixed', 'relative' => 'relative', 'static' => 'static', ) );?></td>
+							</tr>
+							<tr>
+								<td valign="top" align="left" colspan="2">
+									<table>
+										<tr>
+											<td>top:</td>
+											<td><?= $this->formText('top' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+										<tr>
+											<td>right:</td>
+											<td><?= $this->formText('right' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+										<tr>
+											<td>bottom:</td>
+											<td><?= $this->formText('bottom' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+										<tr>
+											<td>left:</td>
+											<td><?= $this->formText('left' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td  valign="top" align="left" style="border-right:1px solid #212121;">
+						<table>
+							<tr>
+								<td>display:</td>
+								<td><?= $this->formSelect( 'display' , null , null , array('' => '', 'none' => 'none', 'block' => 'block', 'inline' => 'inline', 'inline-block' => 'inline-block') );?></td>
+							</tr>
+							<tr>	
+								<td>visibility:</td>
+								<td><?= $this->formSelect( 'visibility' , null , null , array('' => '', 'visible' => 'visible', 'hidden' => 'hidden', 'collapse' => 'collapse') );?></td>
+							</tr>
+							<tr>
+							
+								<td valign="top" align="left" colspan="2">
+									<table>
+										<tr>
+											<td>overflow-x:</td>
+											<td><?= $this->formSelect( 'overflow-x' , null , null , array('' => '', 'visible' => 'visible', 'hidden' => 'hidden', 'scroll' => 'scroll', 'auto' => 'auto') );?></td>
+										</tr>
+										<tr>
+											<td>overflow-y:</td>
+											<td><?= $this->formSelect( 'overflow-y' , null , null , array('' => '', 'visible' => 'visible', 'hidden' => 'hidden',  'scroll' => 'scroll', 'auto' => 'auto') );?></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td  valign="top" align="left" style="border-right:0px solid #212121;">
+						<table>
+							<tr>
+								<td>float:</td>
+								<td><?= $this->formSelect( 'float' , null , null , array('' => '', 'left' => 'left', 'right' => 'right') );?></td>
+							</tr>
+							<tr>	
+								<td>cursor:</td>
+								<td><?= $this->formSelect( 'cursor' , null , null , array('' => '', 'auto' => 'auto', 'pointer' => 'pointer', 'move' => 'move', 'progress' => 'progress') );?></td>
+							</tr>
+							<tr>
+								<td>z-index:</td>
+								<td><?= $this->formText('z-index' , null, array('style'=>'width:30px;'));?></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<div id="tabs-4">
+			<table style="font-size:10px;">
+				<tr>
+					<td  valign="top" align="left" style="border-right:1px solid #212121;">
+						<table>
+							<tr>
+								<td  style="border-bottom:1px solid #212121;">Font:</td>
+							</tr>
+							<tr>
+								<td valign="top" align="left" colspan="2">
+									<table>
+										<tr>
+											<td>font-family:</td>
+											<td><?= $this->formSelect( 'font-family' , null , null , array('' => '', 'Verdana' => 'Verdana', 'Courier New' => 'Courier New', 'Arial' => 'Arial', 'Comic Sans MS' => 'Comic Sans MS', 'Lucida Console' => 'Lucida Console', 'Times New Roman' => 'Times New Roman', 'Courier' => 'Courier', 'Century Gothic' => 'Century Gothic') );?></td>
+										</tr>
+										<tr>
+											<td>font-size:</td>
+											<td><?= $this->formText('font-size' , null, array('style'=>'width:30px;'));?></td>
+										</tr>
+										<tr>
+											<td>font-style:</td>
+											<td><?= $this->formSelect( 'font-style' , null , null , array('' => '', 'normal' => 'normal', 'italic' => 'italic', 'oblique' => 'oblique'));?></td>
+										</tr>
+										<tr>
+											<td>font-weight:</td>
+											<td><?= $this->formSelect( 'font-weight' , null , null , array('' => '', 'normal' => 'normal', 'bold' => 'bold', 'bolder' => 'bolder', 'lighter' => 'lighter'));?></td>
+										</tr>
+										<tr>
+											<td>color:</td>
+											<td><?= $this->formText('color' , null, array('class' => 'color {pickerFaceColor:"transparent",pickerFace:3,pickerBorder:0,pickerInsetColor:"black"}', 'style'=>'width:50px;'));?></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td  valign="top" align="left" style="border-right:0px solid #212121;">
+						<table>
+							<tr>
+								<td  style="border-bottom:1px solid #212121;">Text:</td>
+							</tr>
+							<tr>
+								<td valign="top" align="left" colspan="2">
+									<table>
+										<tr>
+											<td>direction:</td>
+											<td><?= $this->formSelect( 'direction' , null , null , array('' => '', 'ltr' => 'ltr', 'rtl' => 'rtl') );?></td>
+										</tr>
+										<tr>
+											<td>letter-spacing:</td>
+											<td><?= $this->formText('letter-spacing' , null, array('style'=>'width:40px;'));?></td>
+										</tr>
+										<tr>
+											<td>line-height:</td>
+											<td><?= $this->formText( 'line-height' , null , array('style'=>'width:40px;'));?></td>
+										</tr>
+										<tr>
+											<td>text-align:</td>
+											<td><?= $this->formSelect( 'text-align' , null , null , array('' => '', 'left' => 'left', 'right' => 'right', 'center' => 'center', 'justify' => 'justify'));?></td>
+										</tr>
+										<tr>
+											<td>vertical-align:</td>
+											<td><?= $this->formSelect( 'vertical-align' , null , null , array('' => '', 'baseline' => 'baseline', 'sub' => 'sub', 'super' => 'super', 'top' => 'top', 'text-top' => 'text-top', 'middle' => 'middle', 'bottom' => 'bottom', 'text-bottom' => 'text-bottom'));?></td>
+										</tr>
+										<tr>
+											<td>text-decoration:</td>
+											<td><?= $this->formSelect( 'text-decoration' , null , null , array('' => '', 'none' => 'none', 'underline' => 'underline', 'overline' => 'overline', 'line-through' => 'line-through', 'blink' => 'blink'));?></td>
+										</tr>
+										<tr>
+											<td>word-spacing:</td>
+											<td><?= $this->formText('word-spacing' , null, array( 'style'=>'width:50px;'));?></td>
+										</tr>
+										
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<div id="tabs-5">
+			<table>
+				<tr>
+					<td  valign="top" align="left" style="border-right:0px solid #212121;">
+						<table>
+							<tr>
+								<td  style="border-bottom:1px solid #212121;">List:</td>
+							</tr>
+							<tr>
+								<td valign="top" align="left" colspan="2">
+									<table>
+										<tr>
+											<td>list-style-image:</td>
+											<td><?= $this->formText('list-style-image' , null, array('style'=>'width:60px;'));?></td>
+										</tr>
+										<tr>
+											<td>list-style-position:</td>
+											<td><?= $this->formSelect( 'list-style-position' , null , null , array('' => '', 'inside' => 'inside', 'outside' => 'outside'));?></td>
+										</tr>
+										<tr>
+											<td>list-style-type:</td>
+											<td><?= $this->formSelect( 'list-style-type' , null , null , array('' => '', 'none' => 'none', 'circle' => 'circle', 'disc' => 'disc', 'square' => 'square', 'armenian' => 'armenian', 'decimal' => 'decimal', 'decimal-leading-zero' => 'decimal-leading-zero', 'georgian' => 'georgian', 'lower-alpha' => 'lower-alpha', 'lower-greek' => 'lower-greek', 'lower-latin' => 'lower-latin', 'lower-roman' => 'lower-roman', 'upper-alpha' => 'upper-alpha', 'upper-latin' => 'upper-latin', 'upper-roman' => 'upper-roman'));?></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>

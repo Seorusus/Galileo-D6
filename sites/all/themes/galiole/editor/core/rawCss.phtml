@@ -1,0 +1,30 @@
+<div style="float:left;"><textarea style="width:700px;height:200px;background-color:#ffffff;" id="rawCssArea"></textarea></div>
+<div style="float:left;">
+	<input type="text" id="searchFor" size="30"/><span id="search" style="cursor:pointer;border:1px solid #000000;">search</span><br>
+	<span id="next" style="cursor:pointer;border:1px solid #000000;">find next</span>
+	
+</div>
+<script type="text/javascript">
+var resualt;
+$(function(){
+	
+	$('#search').click(function(){
+		var searchFor = $('#searchFor').val();
+		resualt = editor.getSearchCursor(searchFor);
+		if(resualt){
+			var searchInstance = resualt.findNext();
+			resualt.select();
+		}
+	});
+	
+	$('#next').click(function(){
+		
+		if(resualt){
+			var searchInstance = resualt.findNext();
+			resualt.select();
+		}
+	});
+	
+	
+})
+</script>

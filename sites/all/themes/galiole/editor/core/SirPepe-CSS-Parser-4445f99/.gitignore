@@ -1,0 +1,7 @@
+.project
+.tmp_*
+docs
+_parser.php
+*~
+.buildpath
+.settings

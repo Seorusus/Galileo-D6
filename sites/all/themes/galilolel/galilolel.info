@@ -1,0 +1,52 @@
+; $Id: galilolel.info $
+name = galilolel
+
+screenshot = 
+version = 1.0
+core = 6.x
+engine = phptemplate
+
+regions[topMenu] = איזור תפריט משני וחיפוש
+regions[mylogo]= איזור לוגו
+regions[mainMenu] = איזור תפריט עיקרי
+regions[mainAd] = איזור לפרסומת ראשונה
+regions[rightNavigation] = איזור לתפריט צד ופרסומות
+regions[breadcrumbTabs] = איזור לטאבס פירורים ולייק
+regions[content] = איזור תוכן ראשי
+regions[leftInner] = איזור פרסומות בדף פנימי
+regions[footer] = איזור תפריט תחתון
+
+regions[homeMainContent] = תוכן ראשי לדף הבית
+regions[homeSmallAdd] = איזור פרסומת משנית בדף הבית
+regions[homeRight] = איזור תוכן ימני בדף הבית
+regions[homeLeft] = איזור תוכן שמאלי בדף הבית
+
+
+regions[leftFloatingAd] = שטח הודעה משמאל לאתר
+regions[rightFloatingAd] = שטח מודעה מימין לאתר
+
+stylesheets[all][] = style.css
+stylesheets[print][] = print.css
+
+
+; Layout: advertisers
+    layouts[advertisers][name] = "advertisers"
+    layouts[advertisers][description] = "advertisers page."
+    layouts[advertisers][template] = "advertisers"
+    layouts[advertisers][regions][] = "rightNavigation"
+    layouts[advertisers][regions][] = "breadcrumbTabs"
+    layouts[advertisers][regions][] = "content"
+    
+; Layout: narrowPage
+    layouts[narrowPage][name] = "Narrow Page"
+    layouts[narrowPage][description] = "דף צר - לא כל הרוחב"
+    layouts[narrowPage][template] = "narrow-page"
+    layouts[narrowPage][regions][] = "topMenu"
+    layouts[narrowPage][regions][] = "mainMenu"
+    layouts[narrowPage][regions][] = "mainAd"
+    layouts[narrowPage][regions][] = "rightNavigation"
+    layouts[narrowPage][regions][] = "breadcrumbTabs"
+    layouts[narrowPage][regions][] = "content"
+    layouts[narrowPage][regions][] = "footer"
+    layouts[narrowPage][regions][] = "leftFloatingAd"
+    layouts[narrowPage][regions][] = "rightFloatingAd"

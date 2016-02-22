@@ -1,0 +1,62 @@
+<div style="padding:20px 0 0 0;height:100%; float:left; width:30px;border-right:3px solid #3A51C5;">
+	<span style="left:5px;position:absolute;top:130px;white-space:nowrap;width:20px;white-space:nowrap;webkit-transform: rotate(-90deg); -moz-transform: rotate(-90deg); filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);">browse files</span>
+</div>
+<div id="browseStylestr" style="width:800px;">
+<!--<div id="topCssFiles">
+	<input type="text" id="newStyleName"><a href="#" style="white-space:nowrap;" id="addFile">Add Style Sheet</a><br>
+	<a href="#" id="deleteFile">delete selected</a>
+</div>-->
+<div  id="botCssFiles" class="bottom">
+	<? include('css-files-bottom.phtml'); ?>
+</div>	
+</div>
+
+<script type="text/javascript">
+	$('#addFile').click(function(){
+		var name = $('#newStyleName').val();
+		if(name == ''){
+			alert('please insert a name!');
+			return;
+		}
+		
+		$.post("/css/admin/newcssfile", { name:name },
+	    function(data){
+	       // alert(data);
+	       $('#botCssFiles').html(data);
+		});
+		return false;
+	});
+	
+	
+	$('#deleteFile').click(function(){
+		
+		$('.deleteCssFiles:checked').each(function(){
+			var id = $(this).attr('id').replace('delete-', '');
+			
+			$.post("/css/admin/deletecssfile", { id:id },
+		    function(data){
+		       // alert(data);
+		      if(data == 'ok'){
+		      	$('#delete-'+id).parent().remove();
+		      }
+			});
+		});
+		
+		
+		return false;
+	});
+	
+	$('.css-file').click(function(){
+		var id = $(this).attr('id').replace("selector-", "");
+		currentFile = id;
+		//alert(currentFile);
+		$.post("editor/core/controller.php", { file:currentFile },
+	    function(data){
+	       // alert(data);
+	     $('#selectorUl').html(data);
+		});
+		
+	});
+	
+	
+</script>

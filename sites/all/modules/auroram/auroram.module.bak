@@ -1,0 +1,42 @@
+<?php 
+/**
+ * Implements hook_custom_theme
+ * Check if user is on mobile device if yes return mame of a mobile theme.
+ * Also check is user has admin role, if yes return admin theme
+ * @return string, theme name
+ */
+
+// replace mymodulename with the name of your module
+function auroram_init(){
+
+  global $base_url;
+// main site
+$th_main_url = 'http://galilole.org.il';
+// mobile site
+$th_mobile_url = 'http://m.galilole.org.il';
+  
+  // check if user using mobile device
+  $browser = browscap_get_browser(NULL);
+  
+  // check first if we are on the mobile domain or main domain
+  // First case we are on main domain
+  if($base_url == $th_main_url){
+    // if mobile device variable exsits
+    if(isset($browser['ismobiledevice'])) {
+      // check if browser is mobile 
+      if ($browser['ismobiledevice'] == 1) {
+          drupal_goto($th_mobile_url);
+      }
+    }
+  }
+  // if we are on the mobile domain
+  elseif($base_url == $th_mobile_url ) {
+    // if mobile device variable exsits
+    if(isset($browser['ismobiledevice'])) {
+      // check if browser is mobile, if not redirect to main domain 
+      if ($browser['ismobiledevice'] != 1) {
+          drupal_goto($th_main_url);
+      }
+    }
+  }
+}

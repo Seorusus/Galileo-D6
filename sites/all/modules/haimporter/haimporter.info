@@ -1,0 +1,7 @@
+; $Id: haimporter_core.info,v 1.1.2.1 2009/10/11 20:41:11 roetzi Exp $
+name = haimporter
+description = Provides A Importing of external pages.
+package = HaImporter
+dependencies[] = zend
+version = VERSION
+core = 6.x

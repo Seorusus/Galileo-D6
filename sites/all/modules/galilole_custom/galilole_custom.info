@@ -1,0 +1,4 @@
+name = galilole_custom
+description = galil custom functionalities
+core = 6.x
+package = Galil Ole

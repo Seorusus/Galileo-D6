@@ -1,0 +1,7 @@
+; $Id: og_import_core.info,v 1.1.2.1 2009/10/11 20:41:11 roetzi Exp $
+name = og_import
+description = Provides An admin for creating og groups from vocabulary and attaching all node of terms to group.
+package = HaImporter
+dependencies[] = zend
+version = VERSION
+core = 6.x

@@ -1,0 +1,28 @@
+<?
+
+function galilole_comment_comment(&$a1, $op){
+	
+	global $user;
+	
+	if( $op == 'insert' && $user->uid == 0 ){		
+			$a1['author'] = $a1['name'];
+	}
+
+}
+
+
+function galilole_comment_form_alter(&$form, &$form_state, $form_id){
+	
+	global $user;
+	
+	if( $form_id == 'comment_form' && $user->uid == 0 ){
+		//print_r( $form_id);
+		
+		$form['name']['#title'] = t('Name');
+		$form['name']['#type'] = 'textfield';
+		$form['name']['#name'] = 'name';
+		$form['name']['#weight'] = -5;
+	}
+	
+	
+}

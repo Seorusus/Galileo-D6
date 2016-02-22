@@ -1,0 +1,132 @@
+? modules/taxonomy/.svn
+Index: modules/taxonomy/taxonomy.module
+===================================================================
+RCS file: /cvs/drupal/drupal/modules/taxonomy/taxonomy.module,v
+retrieving revision 1.414.2.5
+diff -u -r1.414.2.5 taxonomy.module
+--- modules/taxonomy/taxonomy.module	17 Sep 2008 12:55:37 -0000	1.414.2.5
++++ modules/taxonomy/taxonomy.module	22 Feb 2009 01:10:21 -0000
+@@ -1,5 +1,5 @@
+ <?php
+-// $Id: taxonomy.patch,v 1.1 2009/02/26 04:15:33 mikejoconnor Exp $
++// $Id: taxonomy.patch,v 1.1 2009/02/26 04:15:33 mikejoconnor Exp $
+ 
+ /**
+  * @file
+@@ -527,7 +527,7 @@
+           '#default_value' => $typed_string,
+           '#autocomplete_path' => 'taxonomy/autocomplete/'. $vocabulary->vid,
+           '#weight' => $vocabulary->weight,
+-          '#maxlength' => 255,
++          '#maxlength' => 1024,
+         );
+       }
+       else {
+@@ -615,10 +615,22 @@
+   static $terms;
+ 
+   if (!isset($terms[$node->vid][$key])) {
+-    $result = db_query(db_rewrite_sql('SELECT t.* FROM {term_node} r INNER JOIN {term_data} t ON r.tid = t.tid INNER JOIN {vocabulary} v ON t.vid = v.vid WHERE r.vid = %d ORDER BY v.weight, t.weight, t.name', 't', 'tid'), $node->vid);
+-    $terms[$node->vid][$key] = array();
+-    while ($term = db_fetch_object($result)) {
+-      $terms[$node->vid][$key][$term->$key] = $term;
++    // This caching breaks taxonomy access! The results of db_rewrite_sql will
++    // be cached, meaning the first user to load this node after a cache
++    // refresh will set the permissions for everyone. If you are using a module
++    // that does query rewriting on taxonomy queries, don't use this patch.
++    // If you're not sure whether or not this is the case, don't use this patch!
++    $cache_key = 'node::'. $node->vid. '::'. $key;
++    if ($cache = cache_get($cache_key, 'cache_taxonomy')) {
++      $terms[$node->vid][$key] = $cache->data;
++    }
++    else {
++      $result = db_query(db_rewrite_sql('SELECT t.* FROM {term_node} r INNER JOIN {term_data} t ON r.tid = t.tid INNER JOIN {vocabulary} v ON t.vid = v.vid WHERE r.vid = %d ORDER BY v.weight, t.weight, t.name', 't', 'tid'), $node->vid);
++      $terms[$node->vid][$key] = array();
++      while ($term = db_fetch_object($result)) {
++        $terms[$node->vid][$key][$term->$key] = $term;
++      }
++      cache_set($cache_key, $terms[$node->vid][$key], 'cache_taxonomy');
+     }
+   }
+   return $terms[$node->vid][$key];
+@@ -821,6 +833,16 @@
+  */
+ function taxonomy_get_tree($vid, $parent = 0, $depth = -1, $max_depth = NULL) {
+   static $children, $parents, $terms;
++  
++  $cache_tree = FALSE;
++  if ((0 === $parent) && (-1 === $depth)) {
++    if ($cache = cache_get('tree::'. $vid, 'cache_taxonomy')) {
++      return $cache->data;
++    }
++    else {
++      $cache_tree = TRUE;
++    }
++  }
+ 
+   $depth++;
+ 
+@@ -856,6 +878,10 @@
+     }
+   }
+ 
++  if ($cache_tree) {
++    cache_set('tree::'. $vid, $tree, 'cache_taxonomy');
++  }
++
+   return $tree;
+ }
+ 
+@@ -980,19 +1006,25 @@
+   static $vocabularies = array();
+ 
+   if (!isset($vocabularies[$vid])) {
+-    // Initialize so if this vocabulary does not exist, we have
+-    // that cached, and we will not try to load this later.
+-    $vocabularies[$vid] = FALSE;
+-    // Try to load the data and fill up the object.
+-    $result = db_query('SELECT v.*, n.type FROM {vocabulary} v LEFT JOIN {vocabulary_node_types} n ON v.vid = n.vid WHERE v.vid = %d', $vid);
+-    $node_types = array();
+-    while ($voc = db_fetch_object($result)) {
+-      if (!empty($voc->type)) {
+-        $node_types[$voc->type] = $voc->type;
++    if ($cache = cache_get('vocabulary::'. $vid, 'cache_taxonomy')) {
++      $vocabularies[$vid] = $cache->data;
++    }
++    else {
++      // Initialize so if this vocabulary does not exist, we have
++      // that cached, and we will not try to load this later.
++      $vocabularies[$vid] = FALSE;
++      // Try to load the data and fill up the object.
++      $result = db_query('SELECT v.*, n.type FROM {vocabulary} v LEFT JOIN {vocabulary_node_types} n ON v.vid = n.vid WHERE v.vid = %d', $vid);
++      $node_types = array();
++      while ($voc = db_fetch_object($result)) {
++        if (!empty($voc->type)) {
++          $node_types[$voc->type] = $voc->type;
++        }
++        unset($voc->type);
++        $voc->nodes = $node_types;
++        $vocabularies[$vid] = $voc;
++        cache_set('vocabulary::'. $vid, $voc, 'cache_taxonomy');
+       }
+-      unset($voc->type);
+-      $voc->nodes = $node_types;
+-      $vocabularies[$vid] = $voc;
+     }
+   }
+ 
+@@ -1013,7 +1045,13 @@
+   static $terms = array();
+ 
+   if (!isset($terms[$tid])) {
+-    $terms[$tid] = db_fetch_object(db_query('SELECT * FROM {term_data} WHERE tid = %d', $tid));
++    if ($cache = cache_get('term::'. $tid, 'cache_taxonomy')) {
++      $terms[$tid] = $cache->data;
++    }
++    else {
++      $terms[$tid] = db_fetch_object(db_query('SELECT * FROM {term_data} WHERE tid = %d', $tid));
++      cache_set('term::'. $tid, $terms[$tid], 'cache_taxonomy');
++    }
+   }
+ 
+   return $terms[$tid];

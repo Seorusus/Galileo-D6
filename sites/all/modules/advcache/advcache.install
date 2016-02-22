@@ -1,0 +1,210 @@
+<?php
+function advcache_schema() {
+  $tables = array('node', 'comment', 'taxonomy', 'path', 'search', 'forum', 'advcache_block');
+  $schema = array();
+  foreach ($tables as $table) {
+    $schema['cache_'.$table] = array(
+    'description' => t('!table cache table.', array('table' => $table)),
+    'fields' => array(
+      'cid' => array(
+        'description' => t('Primary Key: Unique cache ID.'),
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => ''),
+      'data' => array(
+        'description' => t('A collection of data to cache.'),
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big'),
+      'expire' => array(
+        'description' => t('A Unix timestamp indicating when the cache entry should expire, or 0 for never.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0),
+      'created' => array(
+        'description' => t('A Unix timestamp indicating when the cache entry was created.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0),
+      'headers' => array(
+        'description' => t('Any custom HTTP headers to be added to cached data.'),
+        'type' => 'text',
+        'not null' => FALSE),
+      'serialized' => array(
+        'description' => t('A flag to indicate whether content is serialized (1) or not (0).'),
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => TRUE,
+        'default' => 0)
+      ),
+    'indexes' => array('expire' => array('expire')),
+    'primary key' => array('cid'),
+    );
+  }
+  return $schema;
+}
+
+function advcache_install() {
+  drupal_install_schema('advcache');
+}
+
+function advcache_uninstall() {
+  drupal_uninstall_schema('advcache');
+}
+
+
+
+
+function advcache_update_2() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("CREATE TABLE {cache_advcache_block} (
+        cid varchar(255) NOT NULL default '',
+        data longblob,
+        expire int NOT NULL default '0',
+        created int NOT NULL default '0',
+        headers text,
+        PRIMARY KEY (cid),
+        INDEX expire (expire)
+      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
+      db_query("CREATE TABLE {cache_search} (
+        cid varchar(255) NOT NULL default '',
+        data longblob,
+        expire int NOT NULL default '0',
+        created int NOT NULL default '0',
+        headers text,
+        PRIMARY KEY (cid),
+        INDEX expire (expire)
+      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
+      db_query("CREATE TABLE {cache_forum} (
+        cid varchar(255) NOT NULL default '',
+        data longblob,
+        expire int NOT NULL default '0',
+        created int NOT NULL default '0',
+        headers text,
+        PRIMARY KEY (cid),
+        INDEX expire (expire)
+      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
+      db_query("CREATE TABLE {cache_advcache_block} (
+        cid varchar(255) NOT NULL default '',
+        data longblob,
+        expire int NOT NULL default '0',
+        created int NOT NULL default '0',
+        headers text,
+        PRIMARY KEY (cid),
+        INDEX expire (expire)
+      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
+      break;
+
+    case 'pgsql':
+      $ret[] = update_sql("CREATE TABLE {cache_advcache_block} (
+        cid varchar(255) NOT NULL default '',
+        data bytea,
+        expire int NOT NULL default '0',
+        created int NOT NULL default '0',
+        headers text,
+        PRIMARY KEY (cid)
+      )");
+      db_query("CREATE INDEX {cache_taxonomy}_expire_idx ON {cache_taxonomy} (expire)");
+      db_query("CREATE TABLE {cache_path} (
+        cid varchar(255) NOT NULL default '',
+        data bytea,
+        expire int NOT NULL default '0',
+        created int NOT NULL default '0',
+        headers text,
+        PRIMARY KEY (cid)
+      )");
+      db_query("CREATE INDEX {cache_path}_expire_idx ON {cache_path} (expire)");
+      db_query("CREATE TABLE {cache_search} (
+        cid varchar(255) NOT NULL default '',
+        data bytea,
+        expire int NOT NULL default '0',
+        created int NOT NULL default '0',
+        headers text,
+        PRIMARY KEY (cid)
+      )");
+      db_query("CREATE INDEX {cache_search}_expire_idx ON {cache_search} (expire)");
+      db_query("CREATE TABLE {cache_forum} (
+        cid varchar(255) NOT NULL default '',
+        data bytea,
+        expire int NOT NULL default '0',
+        created int NOT NULL default '0',
+        headers text,
+        PRIMARY KEY (cid)
+      )");
+      db_query("CREATE INDEX {cache_forum}_expire_idx ON {cache_forum} (expire)");
+      db_query("CREATE TABLE {cache_advcache_block} (
+        cid varchar(255) NOT NULL default '',
+        data bytea,
+        expire int NOT NULL default '0',
+        created int NOT NULL default '0',
+        headers text,
+        PRIMARY KEY (cid)
+      )");
+      db_query("CREATE INDEX {cache_advcache_block}_expire_idx ON {cache_advcache_block} (expire)");
+      break;
+  }
+  return $ret;
+}
+
+function advcache_update_3() {
+  $tables = array('node', 'comment', 'taxonomy', 'path', 'search', 'forum', 'advcache_block');
+
+  switch ($GLOBALS['db_type']) {
+    case 'pgsql':
+      foreach ($tables as $table) {
+        $ret[] = update_sql("DELETE FROM {cache_$table}");
+        db_add_column($ret, 'cache_' . $table, 'serialized', 'integer', array('default' => "'0'", 'not null' => TRUE));
+      }
+      break;
+    case 'mysql':
+    case 'mysqli':
+      foreach ($tables as $table) {
+        $ret[] = update_sql("DELETE FROM {cache_$table}");
+        $ret[] = update_sql("ALTER TABLE {cache_$table} ADD serialized int(1) NOT NULL default '0'");
+      }
+      break;
+  }
+  if (db_table_exists('cache_search')) {
+    db_query("DROP TABLE {cache_search}");
+  }
+  if (db_table_exists('cache_forum')) {
+    db_query("DROP TABLE {cache_forum}");
+  }
+  if (db_table_exists('cache_advcache_block')) {
+    db_query("DROP TABLE {cache_advcache_block}");
+  }
+}
+
+
+function advcache_update_1() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("CREATE TABLE {cache_forum} (
+        cid varchar(255) NOT NULL default '',
+        data longblob,
+        expire int NOT NULL default '0',
+        created int NOT NULL default '0',
+        headers text,
+        PRIMARY KEY (cid),
+        INDEX expire (expire)
+      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
+      break;
+
+    case 'pgsql':
+      $ret[] = update_sql("CREATE TABLE {cache_forum} (
+        cid varchar(255) NOT NULL default '',
+        data bytea,
+        expire int NOT NULL default '0',
+        created int NOT NULL default '0',
+        headers text,
+        PRIMARY KEY (cid)
+      )");
+      db_query("CREATE INDEX {cache_forum}_expire_idx ON {cache_forum} (expire)");
+      break;
+  }
+  return $ret;
+}

@@ -1,0 +1,14 @@
+
+name = Embedded Media Field
+description = Provides an engine for modules to integrate various 3rd party media content providers.
+core = 6.x
+dependencies[] = content
+package = Media
+php = 5.2
+
+; Information added by Drupal.org packaging script on 2016-02-09
+version = "6.x-2.7"
+core = "6.x"
+project = "emfield"
+datestamp = "1455050677"
+

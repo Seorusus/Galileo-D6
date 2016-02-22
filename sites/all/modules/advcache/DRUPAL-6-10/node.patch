@@ -1,0 +1,106 @@
+? modules/node/.svn
+Index: modules/node/node.module
+===================================================================
+RCS file: /cvs/drupal/drupal/modules/node/node.module,v
+retrieving revision 1.947.2.13
+diff -u -r1.947.2.13 node.module
+--- modules/node/node.module	14 Jan 2009 23:34:07 -0000	1.947.2.13
++++ modules/node/node.module	22 Feb 2009 01:13:40 -0000
+@@ -1,5 +1,5 @@
+ <?php
+-// $Id: node.patch,v 1.1 2009/02/26 04:15:33 mikejoconnor Exp $
++// $Id: node.patch,v 1.1 2009/02/26 04:15:33 mikejoconnor Exp $
+ 
+ /**
+  * @file
+@@ -695,20 +695,30 @@
+  *   A fully-populated node object.
+  */
+ function node_load($param = array(), $revision = NULL, $reset = NULL) {
++  global $user;
+   static $nodes = array();
+ 
+   if ($reset) {
+     $nodes = array();
+   }
+ 
+-  $cachable = ($revision == NULL);
++  $cache_id = 0;
+   $arguments = array();
+   if (is_numeric($param)) {
+-    if ($cachable) {
+-      // Is the node statically cached?
++    if (module_exists('advcache')) {
++      $cache_id = ($revision == NULL) ? "node/{$param}" : 0;
++    }
++    if ($cache_id !== 0) {
+       if (isset($nodes[$param])) {
+         return is_object($nodes[$param]) ? drupal_clone($nodes[$param]) : $nodes[$param];
+       }
++      if ($user->uid != 1) {
++        $cache = cache_get($cache_id, 'cache_node');
++        if ($cache) {
++          $nodes[$param] = is_object($cache->data) ? drupal_clone($cache->data) : $cache->data;
++          return $nodes[$param];
++        }
++      }
+     }
+     $cond = 'n.nid = %d';
+     $arguments[] = $param;
+@@ -763,8 +773,13 @@
+         $node->$key = $value;
+       }
+     }
+-    if ($cachable) {
++    if ($cache_id !== 0) {
+       $nodes[$node->nid] = is_object($node) ? drupal_clone($node) : $node;
++      if ($user->uid != 1) {
++        if (!in_array($node->type, variable_get('advcache_node_exclude_types', array('poll')))) {
++          cache_set($cache_id, $nodes[$node->nid], 'cache_node');
++        }
++      }
+     }
+   }
+ 
+@@ -832,6 +847,7 @@
+     }
+     else {
+       $node->teaser = '';
++      $node->format = 0;
+     }
+   }
+ 
+@@ -1675,8 +1691,23 @@
+         $item = node_prepare($item, $teaser);
+       }
+ 
+-      // Allow modules to change $node->teaser before viewing.
++      // Allow modules to change $node->content before the node is rendered.
+       node_invoke_nodeapi($item, 'view', $teaser, FALSE);
++
++      // Set the proper node property, then unset unused $node property so that a
++      // bad theme can not open a security hole.
++      $content = drupal_render($item->content);
++      if ($teaser) {
++        $item->teaser = $content;
++        unset($item->body);
++      }
++      else {
++        $item->body = $content;
++        unset($item->teaser);
++      }
++    
++      // Allow modules to modify the fully-built node.
++      node_invoke_nodeapi($item, 'alter', $teaser, FALSE);
+     }
+ 
+     // Allow modules to add additional item fields and/or modify $item
+@@ -1764,7 +1795,7 @@
+ /**
+  * Menu callback; view a single node.
+  */
+-function node_page_view($node, $cid = NULL) {
++function node_page_view($node, $cid = 0) {
+   drupal_set_title(check_plain($node->title));
+   return node_show($node, $cid);
+ }

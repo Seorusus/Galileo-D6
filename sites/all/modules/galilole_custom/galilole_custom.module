@@ -1,0 +1,92 @@
+<?php 
+function galilole_custom_cron() {
+
+// delete old db logs
+ $max = db_result(db_query('SELECT MAX(wid) FROM {watchdog}'));
+  db_query('DELETE FROM {watchdog} WHERE wid <= %d', $max - variable_get('dblog_row_limit', 1000));
+
+watchdog('galilole_custom_cron', 'drupal_cron_cleanup', array(), WATCHDOG_NOTICE);
+boost_cache_clear_all() ;
+/*
+//drupal_set_message('cleared boost') ;
+watchdog('galilole_custom_cron', 'drupal_cron_cleanup', array(), WATCHDOG_NOTICE);
+//drupal_cron_cleanup() ;
+watchdog('galilole_custom_cron', 'attempt to flush boost files from static page caches.', array(), WATCHDOG_NOTICE);
+//watchdog('galilole_custom_cron', 'clearing boost files');
+
+$domainx = 'cache/normal/cdn3.galilole.org.il' ;
+boost2_cache_delete(TRUE,$domainx) ;
+$domainx = 'cache/normal/cdn2.galilole.org.il' ;
+boost2_cache_delete(TRUE,$domainx) ;
+$domainx = 'cache/normal/www.cdn2.galilole.org.il' ;
+boost2_cache_delete(TRUE,$domainx) ;
+*/
+
+
+
+}
+
+
+
+function boost2_cache_delete($flush = TRUE,$domainx) {
+//  clearstatcache();
+
+  //recreate dirs
+  _boost_mkdir_p($domainx);
+  _boost_mkdir_p($domainx);
+
+  //add in .boost root id file
+  _boost_write_file_chmod($domainx . '/' . BOOST_ROOT_FILE, $domainx);
+  _boost_write_file_chmod($domainx . '/' . BOOST_ROOT_FILE, $domainx);
+  foreach (_boost_copy_file_get_domains(BOOST_PERM_FILE_PATH) as $dir) {
+    _boost_write_file_chmod($dir . '/' . BOOST_ROOT_FILE, $dir);
+  }
+  foreach (_boost_copy_file_get_domains(BOOST_PERM_GZIP_FILE_PATH) as $dir) {
+    _boost_write_file_chmod($dir . '/' . BOOST_ROOT_FILE, $dir);
+  }
+
+  //Flush Cache
+  if (file_exists($domainx)) {
+    _boost_rmdir_rf($domainx, $flush, TRUE);
+  }
+  if (file_exists($domainx)) {
+    _boost_rmdir_rf($domainx, $flush, TRUE);
+  }
+
+  //recreate dirs
+  _boost_mkdir_p($domainx);
+  _boost_mkdir_p($domainx);
+
+  //add in .boost root id file
+  _boost_write_file_chmod($domainx . '/' . BOOST_ROOT_FILE, $domainx);
+  _boost_write_file_chmod($domainx . '/' . BOOST_ROOT_FILE, $domainx);
+  foreach (_boost_copy_file_get_domains(BOOST_PERM_FILE_PATH) as $dir) {
+  	watchdog('galilole_custom_cron', 'removing directory: !output', array('!output' => $domainx), WATCHDOG_NOTICE);
+    _boost_write_file_chmod($dir . '/' . BOOST_ROOT_FILE, $dir);
+  }
+  foreach (_boost_copy_file_get_domains(BOOST_PERM_GZIP_FILE_PATH) as $dir) {
+	watchdog('galilole_custom_cron', 'removing directory: !output', array('!output' => $domainx), WATCHDOG_NOTICE);
+    _boost_write_file_chmod($dir . '/' . BOOST_ROOT_FILE, $dir);
+  }
+
+  // Make sure cache dir has htaccess rules
+//  boost_htaccess_cache_dir_put();
+}
+
+/**
+ * Implementation of hook_menu_alter().
+ * generate redirection from /node to front
+ */
+function galilole_custom_menu_alter(&$items) {
+  $items['node']['page callback'] = '_galilole_custom_redirect_to_frontpage';
+}
+
+/**
+ * Redirect back to the frontpage for specific pages.
+ */
+function _galilole_custom_redirect_to_frontpage() {
+  if($_GET['q'] == 'node') {
+    $_REQUEST['destination'] = "<front>";
+    drupal_goto();
+  }
+}

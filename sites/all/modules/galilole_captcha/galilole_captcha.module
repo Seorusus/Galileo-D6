@@ -1,0 +1,20 @@
+<?php
+// $Id: galilole_captcha.module,v 1.1.2.1 2009/10/11 20:41:11 roetzi Exp $
+// is new is the name of the form ??
+
+
+function galilole_captcha_form_alter(&$form, &$form_state, $form_id){
+//add captcha automatically to webforms
+
+  if (strstr($form_id, 'webform_client_form')) {
+        $form['my_captcha_element'] = array(
+            '#type' => 'captcha',
+            '#description'=> t('אתגר זה נועד לוודא שהינך אנושי כדי למנוע "ספאם". יש לרשום את התווים המופיעים בתמונה משמאל לימין ולהבדיל בין אותיות גדולות לקטנות באנגלית.'),
+
+            //'#captcha_type' => 'image_captcha/Image',
+		//'#captcha_type' => 'captcha/Math',
+        );
+    }
+
+}
+

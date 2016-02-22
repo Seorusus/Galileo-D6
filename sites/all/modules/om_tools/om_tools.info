@@ -1,0 +1,11 @@
+name = "OM Tools"
+package = OM
+description = "OM Base Theme Tools Collection"
+core = "6.x"
+
+; Information added by drupal.org packaging script on 2012-01-08
+version = "6.x-2.13"
+core = "6.x"
+project = "om_tools"
+datestamp = "1325989251"
+

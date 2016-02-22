@@ -1,0 +1,1705 @@
+<?php
+
+define("IDOMAIN","http://galilole.org.il/");
+
+function haimporter_menu() {
+	$items = array();
+	
+  $items['admin/build/haimporter'] = array(
+    'title' => 'import content',
+    'description' => 'import content.',
+    'access arguments' => array('access administration pages'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('haimporter_admin'),
+    'type' => MENU_NORMAL_ITEM,
+    //'file' => 'haimporter.admin.inc',
+  );
+  
+  $items['admin/build/haimporter/correct'] = array(
+    'title' => 'correct importorted content',
+    'description' => 'import content.',
+    'access arguments' => array('access administration pages'),
+    'page callback' => 'haimporter_correct',
+    //'page arguments' => array('haimporter_admin'),
+    'type' => MENU_NORMAL_ITEM
+    //'file' => 'haimporter.admin.inc',
+  );
+  
+  $items['admin/build/haimporter/convertadvertizer2og'] = array(
+    'title' => 'convert advertizer',
+    'description' => 'convert advertizer terms node to og',
+    'access arguments' => array('access administration pages'),
+    'page callback' => 'haimporter_conversion',
+    //'page arguments' => array('haimporter_admin'),
+    'type' => MENU_NORMAL_ITEM
+    //'file' => 'haimporter.admin.inc',
+  );
+  
+  
+  $items['admin/build/haimporter/convert-galeries'] = array(
+    'title' => 'convert galeries',
+    'description' => 'convert advertizer terms node to og',
+    'access arguments' => array('access administration pages'),
+    'page callback' => 'haimporter_convert_gallery',
+    //'page arguments' => array('haimporter_admin'),
+    'type' => MENU_NORMAL_ITEM
+    //'file' => 'haimporter.admin.inc',
+  );
+  
+  
+  $items['admin/build/haimporter/fix-galeries'] = array(
+    'title' => 'fix galeries',
+    'description' => 'convert advertizer terms node to og',
+    'access arguments' => array('access administration pages'),
+    'page callback' => 'haimporter_fix_gallery',
+    //'page arguments' => array('haimporter_admin'),
+    'type' => MENU_NORMAL_ITEM
+    //'file' => 'haimporter.admin.inc',
+  );
+  
+
+  $items['admin/build/haimporter/fix-paths'] = array(
+		'title' => 'fix images paths',
+		'description' => 'fix images paths.',
+		'access arguments' => array('access administration pages'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('haimporter_fix_form'),
+		'type' => MENU_NORMAL_ITEM
+	);
+  
+  
+  $items['haimporter/largegallery/%node'] = array(
+    'title' => 'process large galeries',
+    'description' => 'process large galeries',
+    'access arguments' => array('access administration pages'),
+    'page callback' => 'haimporter_largegallery',
+    'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    //'file' => 'haimporter.admin.inc',
+  );
+  
+	
+  
+//  $items['admin/build/block/delete-menu-block'] = array(
+//    'title' => 'Delete menu block',
+//    'access arguments' => array('administer blocks'),
+//    'page callback' => 'drupal_get_form',
+//    //'page arguments' => array('menu_block_delete'),
+//    'type' => MENU_CALLBACK,
+//    //'file' => 'menu_block.admin.inc',
+//  );
+//  $items['admin/settings/menu_block'] = array(
+//    'title' => 'Menu block',
+//    'description' => 'Configure menu block.',
+//    'access arguments' => array('administer blocks'),
+//    'page callback' => 'drupal_get_form',
+//    //'page arguments' => array('menu_block_admin_settings_form'),
+//    'type' => MENU_NORMAL_ITEM,
+//    //'file' => 'menu_block.admin.inc',
+//  );
+  return $items;
+}
+
+
+function haimporter_fix_gallery(){
+
+	//die('aaa');
+	
+	$nidSql = "SELECT distinct g.gid AS gid from {node_galleries} as g ";
+	
+	$gids_all = array();
+	$q = db_query( $nidSql  );
+	
+	while ($row = db_fetch_object($q)) {
+				
+		$gids_all[] = $row->gid;
+	}
+	//haimporter_tr( $gids );
+	
+	
+	$nidSql = "SELECT distinct g.gid AS gid from {node_galleries} as g where g.is_cover <> 0";
+	
+	$gids_good = array();
+	$q = db_query( $nidSql  );
+	
+	while ($row = db_fetch_object($q)) {
+				
+		$gids_good[] = $row->gid;
+	}
+	
+	
+	$gids = array_diff($gids_all ,$gids_good );
+	haimporter_tr(count( $gids_all ));
+	haimporter_tr(count( $gids_good ));
+	haimporter_tr(count( $gids ));
+	
+	
+//	foreach ($gids as $id ) {
+//		$nidSql = "SELECT * from {node_galleries} as g where g.gid = %s order by weight asc";
+//		$r = db_fetch_object( db_query_range($nidSql, $id , 0 , 1));
+//		haimporter_tr( $r );
+//		
+//		$update = "UPDATE `easysite_restore`.`node_galleries` SET `is_cover` = '1' WHERE `node_galleries`.`nid` =%s";
+//		$r2 =  db_query($update, $r->nid);
+//		//haimporter_tr( $r2 );
+//		$i++;
+//	}
+	haimporter_tr( $i );
+	die();
+	
+	
+	return 'done';
+	
+}
+
+
+function haimporter_convert_gallery(){
+	die();
+	$count = 1118;
+	
+	$page = isset($_GET['page']) ? $_GET['page'] : 0;
+	
+//	$nidCountl = "SELECT count(*) AS total from {node} as node where node.type = '%s'";
+//	$count = db_fetch_object( db_query( $nidCountl , "gallery"  ) );
+//	
+//	
+//	echo $count->total;
+//	die();
+	
+	
+	$nidSql = "SELECT node.nid AS nid from {node} as node where node.type = '%s'";
+	
+	$gallery = db_query_range( $nidSql , "gallery" , 10 * $page , 10 );
+	
+	
+	$flag = false;
+	
+	while($g = db_fetch_object( $gallery )){
+		
+		
+		//haimporter_tr($g);
+		
+		
+		$flag = true;
+		
+		
+		//die();
+		
+		$nid = $g->nid; // 44990;
+		
+		//echo $nid;
+		
+		
+		//$nid = 44908;
+		
+		$sql = "SELECT node.nid AS nid,
+	   node_data_field_gallery_image.field_gallery_image_fid AS node_data_field_gallery_image_field_gallery_image_fid,
+	   node_data_field_gallery_image.field_gallery_image_list AS node_data_field_gallery_image_field_gallery_image_list,
+	   node_data_field_gallery_image.field_gallery_image_data AS node_data_field_gallery_image_field_gallery_image_data,
+	   node_data_field_gallery_image.delta AS node_data_field_gallery_image_delta,
+	   node.type AS node_type,
+	   node.vid AS node_vid,
+	   node_data_field_gallery_image_title.field_gallery_image_title_value AS node_data_field_gallery_image_title_field_gallery_image_title_value,
+	   node_data_field_gallery_image_title.field_gallery_main_image_value AS node_data_field_gallery_image_title_field_gallery_main_image_value,
+	   node.uid AS node_uid,
+	   node_revisions.format AS node_revisions_format,
+	   node_weight.sticky AS node_weight_sticky,
+	   node.title AS node_title
+	 FROM node node 
+	 LEFT JOIN content_type_gallery_image node_data_field_gallery ON node.vid = node_data_field_gallery.vid
+	 INNER JOIN node node_node_data_field_gallery ON node_data_field_gallery.field_gallery_nid = node_node_data_field_gallery.nid
+	 LEFT JOIN content_field_gallery_image node_data_field_gallery_image ON node.vid = node_data_field_gallery_image.vid
+	 LEFT JOIN content_type_gallery_image node_data_field_gallery_image_title ON node.vid = node_data_field_gallery_image_title.vid
+	 LEFT JOIN node_revisions node_revisions ON node.vid = node_revisions.vid
+	 LEFT JOIN node node_weight ON node.nid = node_weight.nid
+	 WHERE (node.type in ('gallery_image')) AND (node_data_field_gallery.field_gallery_nid = %s )
+	   ORDER BY node_weight_sticky DESC, node_title ASC
+	";
+		
+		$result = db_query( $sql , $nid );
+	
+	   $images = array();
+	   
+	   $i = 0;
+		while ( $image = db_fetch_object($result)) {
+			
+			
+			$one = array(
+				'gid' => $nid,
+				'nid' => $image->nid,
+				'fid' => $image->node_data_field_gallery_image_field_gallery_image_fid,
+				'weight' => $i++,
+				'is_cover' => $image->node_data_field_gallery_image_title_field_gallery_main_image_value == "כן" ? 1 : 0,
+			);
+			//haimporter_tr( $one );
+			$images[] = $one;
+		}
+	   
+		//haimporter_tr( sizeof($images) );
+		foreach ($images as $one ) {
+			$insert =  "INSERT INTO `easysite_restore`.`node_galleries` (
+				`gid` ,
+				`nid` ,
+				`fid` ,
+				`weight` ,
+				`is_cover`
+				)
+				VALUES (
+				'%s', '%s', '%s', '%s', '%s')";
+			//haimporter_tr( $insert );			
+			$r = db_query($insert , $one['gid'],$one['nid'],$one['fid'],$one['weight'],$one['is_cover'] );
+			//haimporter_tr( $r );
+		}
+	
+	
+	}
+	
+	
+	$url = "http://" . $_SERVER['HTTP_HOST'] . "/admin/build/haimporter/convert-galeries?page=" . ($page+1); //  "http://" . $_SERVER['HTTP_HOST'] . 
+
+    if( $flag ){
+     drupal_set_html_head('<meta http-equiv="refresh" content="3; url=' . $url . '">');
+    } else {
+    	echo "F I N !!!!";
+    }
+	//$node = node_load( $nid );
+	
+	//haimporter_tr( $node );
+	
+	return 10 * $page . "/" . $count . "<br/>";
+}
+
+function haimporter_conversion(){
+	
+	//$t = node_load(5768);
+	//unset( $t->teaser);
+	//haimporter_tr($t);
+	//die();
+	$vid = 13;
+	
+	set_time_limit( 300000 );
+	//'';
+	// 5758 , 5759 , 5760
+	
+	//$nodes = array(); 
+	$sql = "select nid from node where type='adowner' ";
+	$result = db_query( $sql );
+	while ( $nid = db_fetch_object($result)){
+		if ($nid->nid == 5760) {
+			
+		
+		$og = node_load($nid->nid);
+//		unset( $og->teaser);
+//		haimporter_tr($og);
+		
+		
+		
+		//$nodes[] = $node;
+		haimporter_tr($og->title);
+		haimporter_tr($og->nid);
+		
+		$term =_haimporter_get_term($og->title , $vid);
+		//haimporter_tr($term);
+		 
+	    
+		$nodes = _haimporter_get_nodes($term);
+		haimporter_tr(count($nodes));
+		
+		
+		foreach ($nodes as $node ) {
+			
+			
+			$node->og_groups[$og->nid] = $og->nid;
+			
+			node_save($node );
+		}
+		
+		
+		}
+		
+		
+	}
+	
+	
+	echo "done !";
+}
+
+
+function _haimporter_get_nodes( $term  ){
+	
+	
+	$r = db_query("SELECT tn.nid FROM {term_node} tn WHERE tn.tid = {$term->tid}");
+       
+	$nodes = array();
+    while ($obj = db_fetch_object($r)) {
+    	//haimporter_tr($obj);
+    	$nodes[] = node_load( $obj->nid);      
+	}
+	
+	return $nodes;
+	
+}
+
+
+function _haimporter_get_term( $title , $vid ){
+	
+	$terms = taxonomy_get_term_by_name($title);
+	
+	
+	foreach ($terms as $term ) {
+		if( $term->vid == $vid ){
+			return $term;
+		}
+	}
+	
+	return false;
+	
+	
+}
+
+function haimporter_tr($a){
+	echo "<pre>";
+	print_r( $a );
+	echo "</pre>";
+}
+
+
+function haimporter_correct(){
+
+	set_time_limit(1000);
+	$page = isset( $_GET['page'] ) ? $_GET['page'] : 0;
+
+	$type = 'gallery';
+	$result = db_query_range("SELECT n.nid FROM {node} n WHERE n.type = '%s' order by nid" , $type , $page * 2  +200 , 1 );
+   
+    
+    $flag = false;
+    while ($n = db_fetch_object($result))
+    {
+    	$flag = true;
+    	
+    	
+    	haimporter_tr($n->nid);
+    	
+    	
+    	$nodes = haimporter_get_nodes( $n->nid );
+//    	
+//    	
+		haimporter_tr(count($nodes));
+//    		
+
+    	$weight = -90;
+    	foreach ($nodes as $node ) {
+    		
+    		//haimporter_tr("title=" . $node->title);
+    		
+    		$node->node_weight =  $weight;
+    		node_save( $node );
+    		$weight = $weight + 1;
+
+    		
+    	}
+    		
+    }
+    
+    
+    
+     die('me');
+    
+
+    $url ="http://www.galilole.org.il/admin/build/haimporter/correct?page=" . ($page+1); //  "http://" . $_SERVER['HTTP_HOST'] . 
+
+    if( $flag ){
+     // drupal_set_html_head('<meta http-equiv="refresh" content="3; url=' . $url . '">');
+    }
+    //header('Location: http://galilole2.easysitenow.net/admin/build/haimporter/correct');
+    
+    
+   // die(__function__);
+    
+	/**
+	 * goover all nodes of type article and gallery
+	 * if they have a date in the title - remove it
+	 */
+	
+	//echo __function__;
+	
+	return sizeof($nodes) . " here i want to have a page that will show me the results of replacment " . implode("|<br/>" , $t );
+	//
+}
+
+
+function haimporter_get_nodes( $nid ){
+	//haimporter_tr($nid);
+	
+	$items = array();
+	//die('you');
+	$sql = "SELECT node.nid AS nid, node.title AS node_title, ctgi.field_gallery_nid as nnid, node.sticky
+ FROM node 
+INNER JOIN  content_type_gallery_image as ctgi ON ctgi.nid = node.nid
+ WHERE  node.type ='gallery_image'  AND ctgi.field_gallery_nid = %d  
+ ORDER BY  node_title ASC";
+	
+	$result = db_query($sql , $nid );
+   
+    while ($n = db_fetch_object($result)){
+    	$items[] = node_load($n->nid);
+     	//haimporter_tr($n);
+	}
+	return $items;
+}
+
+function haimporter_has_sate_string($title){
+	
+	$output = false;
+	
+	$pattern = "^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d^";
+	
+	
+	preg_match_all($pattern, $title , $result);
+	
+	//haimporter_tr( $result);
+//	$date = "01-01-1970";
+//	
+	if( isset($result[0][0])){
+		
+		$output = str_replace($result[0][0] , '' ,$title );
+		
+		if( substr($output , 0 , 3 ) == " - "){
+			$output = mb_substr( $output , 3); 
+		}
+		
+		return $output;
+		
+	}
+	
+	
+	return $output;
+	
+}
+
+function haimporter_admin_submit( $form, &$form_state ) {
+  
+  	set_time_limit( 300000 );
+	
+	$url 	= $form_state['values']['haimporter_url'];
+	$atype 	= $form_state['values']['haimporter_atype'];
+	$ogid 	= $form_state['values']['haimporter_ogid'];
+	
+	$html = haimporter_fetch($url);
+	
+	$data = haimporter_filter2($html);
+	$siteName = IDOMAIN;//'http://demo7.izbiz.co.il/';
+	
+	$url = str_replace(IDOMAIN , "" , $url );
+	//$url = str_replace("http://galilole.org.il" , "" , $url );
+	$data['url'] = $url;
+	
+	$nodes = haimporter_process($data , $atype, $ogid );
+		
+	
+	$nids = haimporter_creator( $nodes , $atype ,  $ogid );
+	
+}
+
+function haimporter_filter2($html){
+
+	
+	$q = new Zend_Dom_Query( $html);
+	
+	$r = $q->query('td[width="617"]');
+		
+	foreach ($r  as $res ) {
+		$text = haimporter_getHtmlFromDomElement($res);
+	}
+	
+	
+	$q2 = new Zend_Dom_Query( $text );
+	$r2 = $q2->query('img');
+		
+	//Zend_Debug::dump( $html );
+	$images_uri = array();
+	foreach ($r2  as $res ) {
+		
+		$src = $res->getAttribute('src');
+		$alt = $res->getAttribute('alt');
+		$images_uri[] = array(
+			'src' => $src,
+			'alt' =>  html_entity_decode( $alt , null ,"UTF-8" ),
+			//'alt2' =>  iconv('windows-1255' , 'utf-8' , $alt ),
+		);
+		//$uri2 = $this->downloadImage( $src );
+		
+//		if( $uri2 ){
+//			$html3 = str_replace($src , $uri2 , $html3 );
+//		}
+		
+		
+	}
+	
+//	$dom = new Zend_Dom_Query( $text );
+//	$result = $dom->query('.galley_bottom_slice_details');	
+//	if( $result ){
+//		$result1 = $result->current();
+//		
+//		$t =  html_entity_decode(haimporter_getHtmlFromDomElement(  $result1),null,'UTF-8');
+//		Zend_Debug::dump( $t );
+//		$text = str_replace($t , '' , $text );
+//	}
+	
+	$text =  iconv('windows-1255' , 'utf-8' , $text );	
+	$text = html_entity_decode( $text , null ,"UTF-8" ) ;
+	
+	
+	
+	
+	$list = array();
+		
+	$dom = new Zend_Dom_Query( $text );
+	
+	$links = $dom->query("a");
+
+
+	foreach ($links as $link ) {
+		
+		$length = $link->attributes->length;
+		
+		$attrs = array();
+		for ($i = 0; $i < $length; ++$i) {
+		    $name = $link->attributes->item($i)->name;
+		    $value = $link->getAttribute($name);
+		
+		    $attrs[$name] = $value;
+		}
+		
+		if( isset($attrs['href'])){
+			$list[] = haimporter_filter2_uri($attrs['href']);
+		}
+
+	}
+	
+		
+
+	/**
+	 * meta tags
+	 * 
+	 */
+	
+	$meta_keywords = "";
+	$meta_description = "";
+	
+	$qMeta = new Zend_Dom_Query( $html);
+	
+	$mTags1 = $qMeta->query('html head meta[name="keywords"]');
+	foreach ($mTags1  as $t ) {
+		$meta_keywords = $t->getAttribute('content');
+	}
+	
+	$mTags2 = $qMeta->query('html head meta[name="description"]');
+	foreach ($mTags2  as $t ) {
+		$meta_description = $t->getAttribute('content');
+	}
+	
+	$p = $qMeta->query("html head title");
+	$p = $p->current();
+	$page_title = $p->nodeValue;
+		
+		
+
+	
+	//$pattern = '^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$^';
+	$pattern = "^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d^";
+	
+	
+	preg_match_all($pattern, $html , $result);
+	
+	$date = "01-01-1970";
+	
+	if( isset($result[0][0])){
+		$date = $result[0][0];
+	
+		$date = str_replace(array("-"," " , "/" , ".") , "-" , $date );
+	}
+	
+	
+	$title = "no title";
+	
+	$pattern = "/<strong\b[^>]*>(.*?)<\/strong>/";
+	preg_match_all($pattern, $text , $result);
+	
+	if( isset($result[0][0])){
+		$title = $result[0][0];
+	}
+			
+			
+		
+	$data = array(
+		'url'	=> '',
+		'html' => $text,
+		'img' => $images_uri,
+		'a' => $list,
+		'meta' => array(
+			'keywords' => $meta_keywords,
+			'description' => $meta_description,
+			'title' => $page_title,
+		),
+		'date' => $date,
+		'title' => $title,
+		'auther' => '',
+		'tags' => '',
+	);
+	
+	return $data;
+	
+	
+}
+
+
+function haimporter_filter2_uri($uri){
+
+	//Zend_Debug::dump( $uri );
+	
+	$return = $uri;
+	$return = str_replace(IDOMAIN , "" , $return );
+	//$return = str_replace("http://galilole.org.il" , "" , $return );
+	
+//	$p = parse_url($return);
+//	
+//	if( isset($p['query']) && isset( $p['path'])){
+//		
+//		$params = array();
+//		parse_str( $p['query'] , $params );
+//		
+//		unset($params['cookie_lang']);
+//		unset($params['the_session_id']);
+//		unset($params['BLUEWEBSESSIONSID']);
+//		unset($params['PHPSESSID']);
+//		
+//
+//		//Zend_Debug::dump( $p );
+//		
+//		$return = $p['path'] . "?" .  http_build_query( $params ) ;
+//
+//		$return = str_replace("&amp;" , '&' , $return );
+//	}
+
+	if( substr($return,0,1) != "/"){
+		$return = "/" . $return;
+	}
+	
+	return $return;
+	
+}
+	
+	
+	
+function haimporter_getHtmlFromDomElement($element) {
+	
+    $doc = new DOMDocument();
+    foreach($element->childNodes as $child)
+    {
+        $doc->appendChild($doc->importNode($child, true));
+    }
+    return $doc->saveHTML();
+}
+	
+
+function haimporter_fetch( $url ){
+		
+		
+	$client = new Zend_Http_Client();
+	
+		
+	try{
+		
+		$client->setUri($url);
+		$response = $client->request('GET');
+		
+		$body 		= $response->getBody();
+		$headers 	= $response->getHeaders();
+		
+		 
+	} catch (Exception $e ){
+		//$row->error = 1;
+		echo 'fetch error'; 
+		die();
+	}
+		
+	return	$body;
+		
+			
+}
+	
+
+function haimporter_process( $data , $atype, $ogid) {
+	
+	set_time_limit( 300000 );
+	
+	$nodes = array();
+	
+	switch ($atype) {
+		
+		case 'articles':
+			
+			$good = array();
+			
+			foreach ($data['a'] as $link ) {
+				
+				if( strpos($link,'page_data' ) !== false  && strpos($link,'large_advic' ) !== false ){
+					$good[] = $link;
+				}
+			}
+			
+			
+			foreach ($good as $url ) {
+				
+				$html = haimporter_fetch( IDOMAIN . $url);
+	
+				$data2 = haimporter_filter2($html);
+	
+				
+				$url = str_replace(IDOMAIN , "" , $url );
+				//$url = str_replace("http://galilole.org.il" , "" , $url );
+				$data2['url'] = $url;
+	
+				$items = haimporter_process($data2 , 'article', $ogid );
+				
+				foreach ($items as $item ) {
+					$nodes[] = $item;
+				}
+				
+				
+			}
+			
+			break;
+			
+		case 'page':
+		case 'article':
+			
+			$node = new stdClass();
+			$node->type 	= 'story';
+			
+			if( $atype == 'page'){
+				$node->type 	= 'page';
+			}
+			$node->title 	= strip_tags( $data['title'] );
+			$node->date 	= $data['date'];
+			$node->old_url 	= $data['url'];
+			$node->body = $data['html'];
+			
+			
+			foreach ($data['img'] as $image){
+				
+				/**
+				 * here i need to download all images and save them in file system
+				 * what path ?
+				 */
+				
+				$base_path = str_replace('sites/all/modules/haimporter/haimporter.module','',__file__). "sites/default/files/galleries/";
+				
+				$date = date("Y-m",strtotime($node->date));
+				$path =  $base_path . $date ;
+				
+				if (strpos($image['src'],'arrow-up.gif')!== false) {
+					
+					$path = str_replace('sites/all/modules/haimporter/haimporter.module','',__file__). "sites/default/files/";
+					
+				}else {
+				
+					/**
+					 * check an create folder
+					 */
+					if (! is_dir($path)) {
+						mkdir($path);
+					}
+					$path = $path ."/". $ogid;
+	
+					if (! is_dir($path)) {
+						mkdir($path);
+					}
+				  }	
+				 
+				  
+				$parts = explode("/" , $image['src'] );
+				$part = $parts[sizeof($parts)-1];
+				$f = $path ."/" . $part;
+				$url = str_replace(array(IDOMAIN),'',$image['src']);
+				$img = haimporter_fetch( IDOMAIN . $url );
+			
+				if( ! file_exists($f)){
+					file_put_contents($f , $img);
+				}
+				$new = str_replace('/home/easysite/public_html/galilole2' , '' ,   $f );
+				
+				$node->body = str_replace($image['src'],$new,$node->body);
+			  
+				
+				
+				
+			}
+			
+			
+			$nodes[] = $node;
+			
+			break;
+		
+		case 'gallery':
+			
+			$node = new stdClass();
+			$node->type 	= 'gallery';
+			$node->title 	= strip_tags( $data['title'] );
+			$node->date 	= $data['date'];
+			$node->old_url 	= $data['url'];
+			
+			$nodes[] = $node;
+				
+				
+			$images_pages = $data['a'];
+			
+			$images_links = array();
+			$gallery_links = array();
+			
+			
+			foreach ($images_pages as $k => $v ) {
+				if( strpos($v,'large_pic_by_cat') !== false ){
+					$images_links[] = $v;
+					//unset( $images_pages[$k] );
+				}
+				
+				if( strpos($v,'show_gallery_by_cat') !== false ){
+					$gallery_links[] = $v;
+				}
+			}
+			
+			$gallery_links = array_unique($gallery_links);
+			
+			
+			$pages = array();
+			
+			foreach ($gallery_links as $k => $v ) {
+				/**
+				 * fetch the page
+				 * get links to images
+				 * fetch them
+				 */
+				$u = IDOMAIN . $v;
+				
+				$html = haimporter_fetch($u);
+				$data_tmp = haimporter_filter2($html);
+				
+				foreach ($data_tmp['a']  as $a ) {
+					if( strpos($a,'large_pic_by_cat') !== false ){
+						$images_links[] = $a;
+					}
+				}
+				
+				
+			}
+			
+			
+			foreach ($images_links as $k => $v ) {
+				$u = IDOMAIN . $v;
+				
+				$html = haimporter_fetch($u);
+				$data_tmp = haimporter_filter2($html);
+				
+				$u = str_replace(IDOMAIN , "" , $u );
+				//$u = str_replace("http://galilole.org.il" , "" , $u );
+		
+				$data_tmp['url'] = $u;
+				$pages[$k] = $data_tmp;
+			}
+			
+			
+			
+			//Zend_Debug::dump( $pages );
+			
+			foreach ($pages as $page ) {
+				
+				$img = $page['img'][0];
+				
+				$node = new stdClass();
+				$node->type 	= 'gallery_image';
+				$node->title 	= $img['alt'] ? $img['alt'] : ' ' ; 
+				$node->src 		= $img['src']; 
+				//Zend_Debug::dump( $page['img'] );
+				$node->date 	= $page['date'];
+				$node->old_url 	= $page['url'];
+				
+				/**
+				 * 
+				 */
+				
+				$nodes[] = $node;
+				
+				/**
+				 * here i need to download all images and save them in file system
+				 * what path ?
+				 */
+				
+				$base_path = str_replace('sites/all/modules/haimporter/haimporter.module','',__file__). "sites/default/files/galleries/";
+				
+				$date = date("Y-m",strtotime($node->date));
+				$path =  $base_path . $date ;
+				
+				
+				
+				/**
+				 * check an create folder
+				 */
+				if (! is_dir($path)) {
+					mkdir($path);
+				}
+				$path = $path ."/". $ogid;
+
+				if (! is_dir($path)) {
+					mkdir($path);
+				}
+				
+				$parts = explode("/" , $node->src );
+				$part = $parts[sizeof($parts)-1];
+				$f = $path ."/" . $part;
+				
+				$image = haimporter_fetch( IDOMAIN . $node->src );
+				
+				if( ! file_exists($f)){
+					file_put_contents($f , $image);
+				}
+				
+				$node->src 		= str_replace('/home/easysite/public_html/galilole2/' , '' ,   $f ) ;
+				
+			}
+			
+			
+			break;
+			
+		case 'largegallery':
+			
+			$node = new stdClass();
+			$node->type 	= 'gallery';
+			$node->title 	= strip_tags( $data['title'] );
+			$node->date 	= $data['date'];
+			$node->old_url 	= $data['url'];
+			
+			$nodes[] = $node;
+				
+				
+			$images_pages = $data['a'];
+			
+			$images_links = array();
+			$gallery_links = array();
+			
+			
+			foreach ($images_pages as $k => $v ) {
+				if( strpos($v,'large_pic_by_cat') !== false ){
+					$images_links[] = $v;
+					//unset( $images_pages[$k] );
+				}
+				
+				if( strpos($v,'show_gallery_by_cat') !== false ){
+					$gallery_links[] = $v;
+				}
+			}
+			
+			$gallery_links = array_unique($gallery_links);
+			
+			
+			$pages = array();
+			
+			foreach ($gallery_links as $k => $v ) {
+				/**
+				 * fetch the page
+				 * get links to images
+				 * fetch them
+				 */
+				$u = IDOMAIN . $v;
+				
+				$html = haimporter_fetch($u);
+				$data_tmp = haimporter_filter2($html);
+				
+				foreach ($data_tmp['a']  as $a ) {
+					if( strpos($a,'large_pic_by_cat') !== false ){
+						$images_links[] = $a;
+					}
+				}
+				
+				
+			}
+			
+			
+			//haimporter_tr( $images_links );
+			
+			$items = array();
+			foreach ($images_links as $url ) {
+				db_query("insert into { haimporter_tmp }   (url , done ) values ( '%s' , 0 ); " , $url );
+			}
+			
+			//variable_set('haimporter_largegallery_imagesurls' , $items );
+			
+			//die('popovish');
+			
+			/**
+			 * put all those images in db
+			 */
+			
+			
+			break;
+		default:
+			break;
+	}
+	return $nodes;
+}
+	
+
+function haimporter_creator($nodes , $atype ,  $ogid){
+	
+	
+	switch ($atype) {
+		case 'page':
+		case 'article':
+		case 'articles':
+
+			//$terms = array( taxonomy_get_term($tid) );
+			
+			
+			foreach ($nodes as $node ) {
+			  $date = date('Y-m-d H:i:s',strtotime($node->date));
+			  
+			  
+			//Zend_Debug::dump( $gallery );
+			  $node->language = 'he';
+			  $node->og_groups = array(
+			  	$ogid => $ogid
+			  );
+			  
+			  if( $atype != 'page'){
+					  $node->field_gallry_date = array(
+					  array(
+						'value' => $date ,
+					  )
+					);
+			  }
+			
+			
+			$node->uid = 9;
+			
+			if( $atype != 'page'){
+				
+				
+				$pattern = "^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d^";
+				
+				preg_match_all($pattern,  $node->title , $result);
+				
+				if( isset($result[0][0])){
+					$date = $result[0][0];
+				
+					$date = str_replace(array("-"," " , "/" , ".") , "-" , $date );
+					
+					$node->title = substr( $node->title , 13 );
+				}
+				
+			}
+			//$gallery->field_gallry_date = $gallery->date;
+			
+//			$node = node_submit($node );
+//			Zend_Debug::dump( $node );
+//			die();
+			
+			
+			//og_nodeapi()
+			
+			node_save( $node ) ;
+			drupal_set_message("<a href='/node/{$node->nid}/edit' target='_blank'>{$node->title}</a>" );
+			//taxonomy_node_save( $node , $terms);
+			/**
+				 * write to url_redirect 
+				 */
+				db_query("INSERT INTO {url_redirect} (`old_url`, `new_url`) VALUES ( '{$node->old_url}', 'node/{$node->nid}'); ");
+			
+			}
+			
+			
+			break;
+		
+			 
+		case 'gallery':
+			
+			$gallery = "";
+			foreach ($nodes as $node ) {
+				if( $node->type == 'gallery'){
+					$gallery = $node;
+				}
+			}
+			
+			$date = date('Y-m-d H:i:s',strtotime($gallery->date));
+			//Zend_Debug::dump( $gallery );
+			$gallery->language = 'he';
+			$gallery->field_gallry_date = array(
+				array(
+					'value' => $date ,
+				)
+			);
+			
+			
+			$gallery->uid = 9;
+			$gallery->title = substr( $gallery->title , 13 );
+			
+			$gallery->og_groups = array(
+			  	$ogid => $ogid
+			  );
+			  
+			 
+			  
+			node_save( $gallery ) ;
+			drupal_set_message("<a href='/node/{$gallery->nid}/edit' target='_blank'>{$gallery->title}</a>" );
+			//Zend_Debug::dump( $gallery );
+			 
+			/**
+			 * write to url_redirect 
+			 */
+			db_query("INSERT INTO {url_redirect} (`old_url`, `new_url`) VALUES ( '{$gallery->old_url}', 'node/{$gallery->nid}'); ");
+			
+			$images_nodes = array();
+			foreach ($nodes as $node ) {
+				if( $node->type == 'gallery_image'){
+					$images_nodes[] = $node;
+				}
+			}
+
+			//Zend_Debug::dump( count($images_nodes) );
+			$weight = 0;
+			foreach ($images_nodes as $n ) {
+				//Zend_Debug::dump( $node );
+				$n->language = 'he';
+				$n->type = 'gallery_image';
+				
+//				$n->field_gallery=array(
+//					array('nid' => $gallery->nid )
+// 				);
+ 				
+				
+
+ 				$mime = 'image/jpeg';
+ 				
+ 				 $file_drupal_path = $n->src;
+ 				 
+				$file = new stdClass();
+				$file->filename = basename($file_drupal_path);
+				$file->filepath = $file_drupal_path;
+				$file->filemime = $mime;
+				$file->filesize = filesize($file_drupal_path);
+				
+				$file->uid = 9; //$uid;
+				$file->status = FILE_STATUS_PERMANENT;
+				$file->timestamp = time();
+				drupal_write_record('files', $file);
+  
+ 				
+ 				$n->field_gallery_image = array(
+ 					array(
+ 						  'fid' => $file->fid,
+					      'title' => basename($file->filename),
+					      'filename' => $file->filename,
+					      'filepath' => $file->filepath,
+					      'filesize' => $file->filesize,
+					      'mimetype' => $mime,
+					      'description' => basename($file->filename),
+					      'list' => 1,
+ 					)
+ 				);
+ 				
+ 				$n->field_gallery_image_title = array(
+ 					array(
+ 						  'value' => $n->title,
+					      
+ 					)
+ 				);
+ 				
+          
+ 				
+ 				
+ 				$n->uid = 9;
+ 				
+ 				$n->og_groups = array(
+				  	$ogid => $ogid
+				  );
+			  
+				node_save( $n ) ;
+				//$n -> path = 'node/'.$n->id;
+				//node_save( $n ) ;
+				//taxonomy_node_save($n, $terms);
+				
+				/**
+				 * write to url_redirect 
+				 */
+				db_query("INSERT INTO {url_redirect} (`old_url`, `new_url`) VALUES ( '{$n->old_url}', 'node/{$n->nid}'); ");
+			
+				//$is_cover = $weight==0?1:0;
+				//db_query("INSERT INTO {node_galleries} (`gid`, `nid`, `fid`, `weight`, `is_cover`) VALUES ( '{$gallery->nid}', '{$n->nid}' , '{$file->fid}' , '{$weight}' , '{$is_cover}'); ");
+				
+				if( $weight == 0 ){
+					//node_gallery_galleries
+					try{
+						//db_query("INSERT INTO {node_gallery_galleries} (`gid`, `cover_image` ) VALUES ( '{$gallery->nid}', '{$n->nid}'  ); ");
+						db_query("update {node_gallery_galleries} set cover_image = {$n->nid} where gid = {$gallery->nid}");
+					} catch (Exception $e ){
+						
+					}
+				}
+				/**
+				 * node_gallery 3.0
+				 */
+				//db_query("INSERT INTO {node_gallery_images} (`nid`, `gid`,   `weight` ) VALUES ( '{$n->nid}' , '{$gallery->nid}',  '{$weight}' ); ");
+				db_query("update {node_gallery_images} set weight = '{$weight}', gid= '{$gallery->nid}' where nid = '{$n->nid}'");
+				
+				
+				//Zend_Debug::dump( $n );
+				
+				$weight++;
+				
+			}
+			break;
+	
+			 
+		case 'largegallery':
+			
+			$gallery = "";
+			foreach ($nodes as $node ) {
+				if( $node->type == 'gallery'){
+					$gallery = $node;
+				}
+			}
+			
+			$date = date('Y-m-d H:i:s',strtotime($gallery->date));
+			//Zend_Debug::dump( $gallery );
+			$gallery->language = 'he';
+			$gallery->field_gallry_date = array(
+				array(
+					'value' => $date ,
+				)
+			);
+			
+			
+			$gallery->uid = 9;
+			$gallery->title = substr( $gallery->title , 13 );
+			
+			$gallery->og_groups = array(
+			  	$ogid => $ogid
+			  );
+			  
+			 
+			  
+			node_save( $gallery ) ;
+			drupal_set_message("<a href='/node/{$gallery->nid}/edit' target='_blank'>{$gallery->title}</a>" );
+			//Zend_Debug::dump( $gallery );
+			 
+			/**
+			 * write to url_redirect 
+			 */
+			db_query("INSERT INTO {url_redirect} (`old_url`, `new_url`) VALUES ( '{$gallery->old_url}', 'node/{$gallery->nid}'); ");
+			
+			drupal_goto('/haimporter/largegallery/' . $gallery->nid);
+			
+			
+			
+			break;
+	
+		default:
+			break;
+	}
+	
+}
+
+
+function haimporter_admin() {
+	
+	//	 = $tid
+	//sess_write('haimporter_atype' , $atype );
+	//sess_write('haimporter_tid' , $tid );
+	
+  $form = array();
+
+  $form['haimporter_url'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Base Url',
+    '#default_value' =>'',
+    '#attributes' => array('dir' => 'ltr'),
+    //'#size' => 2,
+    '#maxlength' => 255,
+    '#description' => "The maximum number of links to display in the block.",
+    '#required' => TRUE,
+  );
+
+  $form['haimporter_atype'] = array(
+    '#type' => 'select',
+    '#title' => 'Operation',
+    '#default_value' => $_SESSIOM['import']['haimporter_atype'],
+     '#options' => array(
+	    'article' => 'article',
+	    'articles' => 'articles',
+	    'gallery' => 'gallery',
+	    'largegallery' => 'large gallery',
+	    'page' => 'page',
+	    //'galleries' => 'galleries',
+	    
+	  ),
+    '#description' => "The maximum number of links to display in the block.",
+    '#required' => TRUE,
+  );
+
+  /*$options = array();
+  $tree = taxonomy_get_tree( 10 );
+  foreach ($tree as $term) {
+  	$options[$term->tid] = $term->name;
+  }
+  
+  $tree = taxonomy_get_tree( 13 );
+  foreach ($tree as $term) {
+  	$options[$term->tid] = $term->name;
+  }
+  
+  $tree = taxonomy_get_tree( 14 );
+  foreach ($tree as $term) {
+  	$options[$term->tid] = $term->name;
+  }*/
+  
+ // Zend_Debug::dump( $tree );
+  
+  
+  /*$form['haimporter_tid'] = array(
+    '#type' => 'select',
+    '#title' => 'Term',
+    '#default_value' =>$_SESSIOM['import']['haimporter_tid'],
+     '#options' => $options,
+    '#description' => "The maximum number of links to display in the block.",
+    '#required' => TRUE,
+  );*/
+
+  $og_options = array();
+  $result = db_query('SELECT n.nid FROM {node} n WHERE n.type in("organic_group","adowner")  ORDER BY n.title');
+  while ($og = db_fetch_object($result))
+    {
+       $og = node_load($og->nid);
+       $og_options[$og->nid]=$og->title;
+    }     
+       
+  $form['haimporter_ogid'] = array(
+    '#type' => 'select',
+    '#title' => 'קהל יעד',
+    '#default_value' =>$_SESSIOM['import']['haimporter_ogid'],
+     '#options' => $og_options,
+    '#description' => "יבא לקבוצה.",
+    '#required' => TRUE,
+  );
+
+  
+  
+  
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Import'));
+  
+  return $form;
+}
+
+
+function haimporter_largegallery($gallery){
+	
+	
+	$nid = $gallery->nid;
+	$ogid = current($gallery->og_groups);
+	/**
+	 * read filenames
+	 */
+	$items = array();
+	$pages = array();
+	
+	
+	$sql = "select * from {haimporter_tmp} where done = 0 order by id limit 0,10";
+	$result = db_query($sql);
+	
+	//$images_links = _haimporter_get_images(10);
+	
+	//haimporter_tr($images_links);
+//	while( $item = db_fetch_object($result) ){
+//		haimporter_tr($item);
+//	}
+	//die('aaaa');
+	//return "this is $nid page";
+	
+	
+	
+	while( $item = db_fetch_object($result) ){
+			
+	//foreach ($images_links as  $item ) {
+		$u = IDOMAIN . $item->url;
+		
+		$html = haimporter_fetch($u);
+		$data_tmp = haimporter_filter2($html);
+		
+		$u = str_replace(IDOMAIN , "" , $u );
+
+		$data_tmp['url'] = $u;
+		$pages[] = $data_tmp;
+		
+		$items[] = $item;
+	}
+			
+		
+	$nodes = array();	
+				
+	foreach ($pages as $page ) {
+		
+		$img = $page['img'][0];
+		
+		$node = new stdClass();
+		$node->type 	= 'gallery_image';
+		$node->title 	= $img['alt'] ? $img['alt'] : ' ' ; 
+		$node->src 		= $img['src']; 
+		$node->date 	= $page['date'];
+		$node->old_url 	= $page['url'];
+		
+		/**
+		 * here i need to download all images and save them in file system
+		 * what path ?
+		 */
+		
+		$base_path = str_replace('sites/all/modules/haimporter/haimporter.module','',__file__). "sites/default/files/galleries/";
+		
+		$date = date("Y-m",strtotime($node->date));
+		$path =  $base_path . $date ;
+				
+		/**
+		 * check an create folder
+		 */
+		if (! is_dir($path)) {
+			mkdir($path);
+		}
+		$path = $path ."/". $ogid;
+
+		if (! is_dir($path)) {
+			mkdir($path);
+		}
+		
+		$parts = explode("/" , $node->src );
+		$part = $parts[sizeof($parts)-1];
+		$f = $path ."/" . $part;
+		
+		$image = haimporter_fetch( IDOMAIN . $node->src );
+		
+		if( ! file_exists($f)){
+			file_put_contents($f , $image);
+		}
+		
+		$node->src 		= str_replace('/home/easysite/public_html/galilole2/' , '' ,   $f ) ;
+		
+		$nodes[] = $node;
+	}
+
+
+	$weight = 0;
+	foreach ($nodes as $n ) {
+
+		$n->language = 'he';
+		$n->type = 'gallery_image';
+		
+		$mime = 'image/jpeg';
+			
+		$file_drupal_path = $n->src;
+			 
+		$file = new stdClass();
+		$file->filename = basename($file_drupal_path);
+		$file->filepath = $file_drupal_path;
+		$file->filemime = $mime;
+		$file->filesize = filesize($file_drupal_path);
+		
+		$file->uid = 9; //$uid;
+		$file->status = FILE_STATUS_PERMANENT;
+		$file->timestamp = time();
+		drupal_write_record('files', $file);
+
+			
+		$n->field_gallery_image = array(
+			array(
+				'fid' => $file->fid,
+		      'title' => basename($file->filename),
+		      'filename' => $file->filename,
+		      'filepath' => $file->filepath,
+		      'filesize' => $file->filesize,
+		      'mimetype' => $mime,
+		      'description' => basename($file->filename),
+		      'list' => 1,
+			)
+		);
+			
+		$n->field_gallery_image_title = array(
+			array(
+				  'value' => $n->title,
+		      
+			)
+		);
+			
+  		$n->uid = 9;
+			
+		$n->og_groups = $gallery->og_groups;
+	  
+		node_save( $n ) ;
+		/**
+		 * write to url_redirect 
+		 */
+		db_query("INSERT INTO {url_redirect} (`old_url`, `new_url`) VALUES ( '{$n->old_url}', 'node/{$n->nid}'); ");
+	
+		if( $weight == 0 ){
+			//node_gallery_galleries
+			try{
+				//db_query("INSERT INTO {node_gallery_galleries} (`gid`, `cover_image` ) VALUES ( '{$gallery->nid}', '{$n->nid}'  ); ");
+				db_query("update {node_gallery_galleries} set cover_image = {$n->nid} where gid = {$gallery->nid}");
+			} catch (Exception $e ){
+				
+			}
+		}
+		/**
+		 * node_gallery 3.0
+		 */
+		//db_query("INSERT INTO {node_gallery_images} (`nid`, `gid`,   `weight` ) VALUES ( '{$n->nid}' , '{$gallery->nid}',  '{$weight}' ); ");
+		db_query("update {node_gallery_images} set weight = '{$weight}', gid= '{$gallery->nid}' where nid = '{$n->nid}'");
+		
+		
+		//Zend_Debug::dump( $n );
+		
+		$weight++;
+		
+	}
+	
+	if( $weight ){
+		
+		foreach ( $items as $item ) {
+			$sql = "update {haimporter_tmp} set  done = 1  where id = %s";
+			$result = db_query($sql,$item->id);
+		
+		}
+		//return "done tmp";
+		drupal_goto('/haimporter/largegallery/' . $gallery->nid);
+	} else {
+		
+		$sql = "TRUNCATE TABLE  {haimporter_tmp} ";
+		$result = db_query($sql);
+		
+		
+		return "done";
+	}
+	
+	
+	/**
+	 * here i need to remove
+	 */
+	
+	
+	
+}
+
+
+function haimporter_fix_form(){
+	
+		
+	$form = array();
+	
+  $form['batch'] = array(
+    '#type' => 'select',
+    '#title' => 'Choose batch',
+    '#options' => array(
+      'batch_fix_galley_image_path' => t('fix galley image path'),
+    ),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Go',
+  );
+	return $form;
+} 
+
+
+
+function haimporter_fix_form_submit($form, &$form_state) {
+	
+  $function = 'haimporter_' . $form_state['values']['batch'];
+
+  $batch = $function();
+  
+  batch_set($batch);
+  
+  batch_process();
+
+}
+
+
+function haimporter_batch_fix_galley_image_path() {
+	
+	$batch = array(
+		'title' => t('fix gallery image path'),
+		'operations' => array(),
+		'finished' => '_haimporter_batch_finished',
+	);
+	
+	
+	
+	$nids = array();
+	$q = db_query("select nid from node where type = 'gallery_image' ");
+	while( $res = db_fetch_object($q) ){
+		$nids[] = $res->nid;
+	}
+	
+	$chunks = array_chunk($nids,100);
+	
+	
+	foreach ($chunks as $i => $chunk ) {
+		$batch['operations'][] =  array('_haimporter_fix_image_path', array($chunk) ) ;
+	}
+		
+	return $batch;
+}
+
+function _haimporter_fix_image_path( $chunk , &$context) {
+	
+	static $i;
+	$i++;
+	
+	$pids = array();
+	foreach ($chunk as $nid ) {
+		
+		$s = db_query("select pid from {url_alias} where src = '%s'" , 'node/' . $nid );
+		while($row = db_fetch_object($s)){
+			$pids[] = $row->pid;
+		}
+	}
+	
+	foreach ($pids as $pid ) {
+		db_query('delete from {url_alias} where pid = %s ' , $pid );
+	}
+	
+	
+	//$context['results'][] = $node->nid .' : '. $node->title;
+	$context['results'][] =  $i; // $row->name . " " . $row->cid . " " . $row->image;
+	/*foreach ($albums as $album) {
+		//$context['results'][] = $album->nid . " " . $album->model ;
+	}*/
+  	$context['message'] = 'processing chunk ' . $i . ' count=' . count($pids);
+
+  	
+}
+
+
+function _haimporter_batch_finished($success, $results, $operations) {
+  if ($success) {
+    $message = format_plural(count($results), 'One post processed.', '@count posts processed.');
+  }
+  else {
+    $message = t('Finished with an error.');
+  }
+  drupal_set_message($message);
+  
+  foreach ($results as $result) {
+    $items[] = t('Loaded node %title.', array('%title' => $result));
+    //drupal_set_message(t('Loaded node %title.', array('%title' => $result)));
+    drupal_set_message($result);
+  }
+  
+}

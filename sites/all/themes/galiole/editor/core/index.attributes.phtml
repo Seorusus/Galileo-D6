@@ -1,0 +1,795 @@
+<div id="attrCategories">
+	<ul style="padding:0;list-style-type:none;margin:0;">
+		<li><a id="attr-background" href="#">Background</a></li>
+		<li><a id="attr-border" href="#">Border</a></li>
+		<li><a id="attr-dimension" href="#">Dimension, Spacing and Positioning</a></li>
+		<li><a id="attr-font" href="#">Font and Text</a></li>	
+		<li><a id="attr-list" href="#">List</a></li>
+	</ul>
+</div>
+<form id="attributes">
+<input type="hidden" id="selector" value="" name="selector">
+<input type="hidden" id="id" value="" name="id">
+
+<? $borderStyle = array(
+						'' => '',
+						'none' => 'none',
+						'hidden'=> 'hidden',
+						'dotted'=> 'dotted',
+						'dashed'=> 'dashed',
+						'solid'=> 'solid',
+						'double'=> 'double',
+						'groove'=> 'groove',
+						'ridge'=> 'ridge',
+						'inset'=> 'inset',
+						'outset'=> 'outset',
+						'inherit'=> 'inherit',
+					); ?>
+					
+	<div id="cssTabs" style="direction:ltr;">
+		
+		<div class="cssEdit" style="display:block;" id="css-edit-background">
+			<table class="cssAttrTable">
+				<tr>
+					<td valign="top">
+						<table>
+							<tr>
+								<td>color</td>
+								<td nowrap >
+									<input type="text" class="color" value="" id="background-color" name="background-color">
+								</td>
+							</tr>
+							<tr>
+								<td>image</td>
+								<td>
+									<input type="text" size="20" class="fileInput" value="" id="background-image" name="background-image">
+									<button value="browse" id="browse-background-image" class="BrowseServer" type="button" title="browse">browse</button>
+								</td>
+							</tr>
+							<tr>
+								<td>repeat</td>
+								<td>
+								<select id="background-repeat" name="background-repeat">
+								    <option label="" value=""></option>
+								    <option label="repeat" value="repeat">repeat</option>
+								    <option label="repeat-x" value="repeat-x">repeat-x</option>
+								    <option label="repeat-y" value="repeat-y">repeat-y</option>
+								    <option label="no-repeat" value="no-repeat">no-repeat</option>
+								    <option label="inherit" value="inherit">inherit</option>
+								</select>
+								</td>
+							</tr>
+							<tr>
+								<td>attachment</td>
+								<td>
+								<select id="background-attachment" name="background-attachment">
+								    <option label="" value=""></option>
+								    <option label="scroll" value="scroll">scroll</option>
+								    <option label="fixed" value="fixed">fixed</option>
+								    <option label="inherit" value="inherit">inherit</option>
+								</select>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td valign="top">
+						<table>
+							<tr>
+								<td>position</td>
+							</tr>
+							<tr>
+								<td>
+									<div style="position:relative;width:66px;height:66px;float:left;">
+										<div id="positionTableDiv" style="position:absolute;left:0;top:0;width:66px;height:66px;z-index:1;"></div>
+											<div id="positionTable" style="position:absolute;left:0;top:0;z-index:2;width:66px;height:66px;">
+											<? for($a =1; $a <10; $a++){?>
+												<div style="float:left;width:20px;height:20px;" class="bg-position-determine" id="position-no-<?= $a ?>">&nbsp;</div>
+												<?};?>
+											</div>
+									</div>
+								</td>
+							</tr>	
+							<tr>
+								<td>
+									<div style="float:left;">
+										<input type="text" style="width: 80px;" value="" id="background-position" name="background-position">
+										
+										<div id="tmpContent"></div>
+									</div>
+								</td>
+							</tr>
+						</table>
+					</td>	
+				</tr>
+			</table>
+			
+		</div>
+		<div class="cssEdit" id="css-edit-border">
+			<table class="cssAttrTable">
+				<tr>
+					<td>
+						<div id="uniformSelect" style="float:left;margin-right:10px;border:1px solid transparent;">uniform border?</div>
+						<div style="clear:both;"></div>
+						<table>
+							<tr>
+								<td width="50px"></td>
+								<td width="35px">width</td>
+								<td width="80px">color</td>
+								<td width="73px">style</td>
+								<td>corner radius(all but ie...)</td>
+							</tr>
+						</table>
+						
+						<div style="clear:both;"></div>
+						<div style="float:left;margin-right:10px;border:1px solid transparent;">
+							<table>
+								<tr>
+									<td width="50px" id="whenUnified">top:</td>
+									<td><input type="text" class="border-width" style="width: 40px;" value="" id="border-top-width" name="border-top-width"></td>
+									<td><input type="text" class="border-color color" style="width: 50px;" value="" id="border-top-color" name="border-top-color"></td>
+									<td>
+										<select class="border-style" id="border-top-style" name="border-top-style">
+										    <option label="" value=""></option>
+										    <option label="none" value="none">none</option>
+										    <option label="hidden" value="hidden">hidden</option>
+										    <option label="dotted" value="dotted">dotted</option>
+										    <option label="dashed" value="dashed">dashed</option>
+										    <option label="solid" value="solid">solid</option>
+										    <option label="double" value="double">double</option>
+										    <option label="groove" value="groove">groove</option>
+										    <option label="ridge" value="ridge">ridge</option>
+										    <option label="inset" value="inset">inset</option>
+										    <option label="outset" value="outset">outset</option>
+										    <option label="inherit" value="inherit">inherit</option>
+										</select>
+									</td>
+									<td><input type="text" class="inputCorner" style="width: 40px;" value="" id="moz-border-radius" name="-moz-border-radius"></td>
+									<td><input type="hidden" id="webkit-border-radius" class="inputCorner" value="" name="-webkit-border-radius"></td>
+									<td><input type="hidden" id="border-radius" class="inputCorner" value="" name="border-radius"></td>
+								</tr>
+							</table>
+							<table id="hideWhenUnified">
+								<tr>
+									<td width="50px">right:</td>
+								 	<td><input type="text" class="border-width" style="width: 40px;" value="" id="border-right-width" name="border-right-width"></td>
+									<td><input type="text" class="border-color color" style="width: 50px;" value="" id="border-right-color" name="border-right-color"></td>
+									<td>
+										<select class="border-style" id="border-right-style" name="border-right-style">
+										    <option label="" value=""></option>
+										    <option label="none" value="none">none</option>
+										    <option label="hidden" value="hidden">hidden</option>
+										    <option label="dotted" value="dotted">dotted</option>
+										    <option label="dashed" value="dashed">dashed</option>
+										    <option label="solid" value="solid">solid</option>
+										    <option label="double" value="double">double</option>
+										    <option label="groove" value="groove">groove</option>
+										    <option label="ridge" value="ridge">ridge</option>
+										    <option label="inset" value="inset">inset</option>
+										    <option label="outset" value="outset">outset</option>
+										    <option label="inherit" value="inherit">inherit</option>
+										</select>
+									</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td width="50px">bottom:</td>
+								    <td><input type="text" class="border-width" style="width: 40px;" value="" id="border-bottom-width" name="border-bottom-width"></td>
+									<td><input type="text" class="border-color color" style="width: 50px;" value="" id="border-bottom-color" name="border-bottom-color"></td>
+									<td>
+										<select class="border-style" id="border-bottom-style" name="border-bottom-style">
+										    <option label="" value=""></option>
+										    <option label="none" value="none">none</option>
+										    <option label="hidden" value="hidden">hidden</option>
+										    <option label="dotted" value="dotted">dotted</option>
+										    <option label="dashed" value="dashed">dashed</option>
+										    <option label="solid" value="solid">solid</option>
+										    <option label="double" value="double">double</option>
+										    <option label="groove" value="groove">groove</option>
+										    <option label="ridge" value="ridge">ridge</option>
+										    <option label="inset" value="inset">inset</option>
+										    <option label="outset" value="outset">outset</option>
+										    <option label="inherit" value="inherit">inherit</option>
+										</select>
+									</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td width="50px">left:</td>
+									<td><input type="text" class="border-width" style="width: 40px;" value="" id="border-left-width" name="border-left-width"></td>
+									<td><input type="text" class="border-color color" style="width: 50px;" value="" id="border-left-color" name="border-left-color"></td>
+									<td>
+										<select class="border-style" id="border-left-style" name="border-left-style">
+										    <option label="" value=""></option>
+										    <option label="none" value="none">none</option>
+										    <option label="hidden" value="hidden">hidden</option>
+										    <option label="dotted" value="dotted">dotted</option>
+										    <option label="dashed" value="dashed">dashed</option>
+										    <option label="solid" value="solid">solid</option>
+										    <option label="double" value="double">double</option>
+										    <option label="groove" value="groove">groove</option>
+										    <option label="ridge" value="ridge">ridge</option>
+										    <option label="inset" value="inset">inset</option>
+										    <option label="outset" value="outset">outset</option>
+										    <option label="inherit" value="inherit">inherit</option>
+										</select>
+									</td>
+									<td></td>
+									
+								</tr>
+							</table>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class="cssEdit" id="css-edit-dimension">
+			<table class="cssAttrTable" cellpadding="0" cellspacing="0" style="font-size:12px;">
+				<tr>
+					<td  valign="top" align="left" style="border-right:1px solid #212121;border-bottom:1px solid #212121;">
+						<table>
+							<tr>
+								<td valign="top" align="left" style="border-bottom:1px solid #212121;">Dimension</td>
+							</tr>
+							<tr>
+								<td valign="top" align="left">
+									<table>
+										<tr>
+											<td>Height:</td>
+											<td><input type="text" style="width: 40px;" value="" id="height" name="height"></td>
+										</tr>
+										<tr>
+											<td>Width:</td>
+											<td><input type="text" style="width: 40px;" value="" id="width" name="width"></td>
+										</tr>
+										<tr>
+											<td>min-height:</td>
+											<td><input type="text" style="width: 40px;" value="" id="min-height" name="min-height"></td>
+										</tr>
+										<tr>
+											<td>min-width:</td>
+											<td><input type="text" style="width: 40px;" value="" id="min-width" name="min-width"></td>
+										</tr>
+									</table>
+								</td>
+								<td valign="top" align="left">
+									<table>
+										<tr>
+											<td>max-height:</td>
+											<td><input type="text" style="width: 40px;" value="" id="max-height" name="max-height"></td>
+										</tr>
+										<tr>
+											<td>max-width:</td>
+											<td><input type="text" style="width: 40px;" value="" id="max-width" name="max-width"></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td  valign="top" align="left" style="border-right:1px solid #212121;border-bottom:1px solid #212121;">
+						<table>
+							<tr>
+								<td  valign="top" align="left" style="border-bottom:1px solid #212121;">Margin</td>
+							</tr>
+							<tr>
+								<td  valign="top" align="left">
+									<table>
+										<tr>
+											<td class="unified" id="Unified-margin">not Unified</td>
+											<td></td>
+										</tr>
+										<tr>
+											<td id="when-Unified-margin">margin:</td>
+											<td><input type="text" style="width: 40px;" value="" id="margin-top" name="margin-top"></td>
+										</tr>
+										<tr class="hideWhenUnified-margin">
+											<td>margin-right</td>
+											<td><input type="text" style="width: 40px;" value="" class="margin" id="margin-right" name="margin-right"></td>
+										</tr>
+										<tr class="hideWhenUnified-margin">
+											<td>margin-bottom</td>
+											<td><input type="text" style="width: 40px;" value="" class="margin" id="margin-bottom" name="margin-bottom"></td>
+										</tr>
+										<tr class="hideWhenUnified-margin">
+											<td>margin-left</td>
+											<td><input type="text" style="width: 40px;" value="" class="margin" id="margin-left" name="margin-left"></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td  valign="top" align="left" style="border-bottom:1px solid #212121;border-right:1px solid #212121;">
+						<table>
+							<tr>
+								<td  valign="top" align="left" style="border-bottom:1px solid #212121;">Padding</td>
+							</tr>
+							<tr>
+								<td  valign="top" align="left">
+									<table>
+										<tr>
+											<td class="unified" id="Unified-padding">not Unified</td>
+											<td></td>
+										</tr>
+										<tr>
+											<td id="when-Unified-padding">padding:</td>
+											<td><input type="text" style="width: 40px;" value="" id="padding-top" name="padding-top"></td>
+										</tr>
+										<tr class="hideWhenUnified-padding">
+											<td>padding-right</td>
+											<td><input type="text" style="width: 40px;" value="" class="padding" id="padding-right" name="padding-right"></td>
+										</tr>
+										<tr class="hideWhenUnified-padding">
+											<td>padding-bottom</td>
+											<td><input type="text" style="width: 40px;" value="" class="padding" id="padding-bottom" name="padding-bottom"></td>
+										</tr>
+										<tr class="hideWhenUnified-padding">
+											<td>padding-left</td>
+											<td><input type="text" style="width: 40px;" value="" class="padding" id="padding-left" name="padding-left"></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				    <td  valign="top" align="left" style="border-right:1px solid #212121;border-bottom:1px solid #212121;">
+						<table>
+							<tr>
+								<td>position:</td>
+								<td>
+									<select id="position" name="position">
+									    <option label="" value=""></option>
+									    <option label="absolute" value="absolute">absolute</option>
+									    <option label="fixed" value="fixed">fixed</option>
+									    <option label="relative" value="relative">relative</option>
+									    <option label="static" value="static">static</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td valign="top" align="left" colspan="2">
+									<table>
+										<tr>
+											<td>top:</td>
+											<td><input type="text" style="width: 40px;" value="" id="top" name="top"></td>
+										</tr>
+										<tr>
+											<td>right:</td>
+											<td><input type="text" style="width: 40px;" value="" id="right" name="right"></td>
+										</tr>
+										<tr>
+											<td>bottom:</td>
+											<td><input type="text" style="width: 40px;" value="" id="bottom" name="bottom"></td>
+										</tr>
+										<tr>
+											<td>left:</td>
+											<td><input type="text" style="width: 40px;" value="" id="left" name="left"></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td  valign="top" align="left" style="border-right:1px solid #212121;border-bottom:1px solid #212121;">
+						<table>
+							<tr>
+								<td>display:</td>
+								<td>
+									<select id="display" name="display">
+									    <option label="" value=""></option>
+									    <option label="none" value="none">none</option>
+									    <option label="block" value="block">block</option>
+									    <option label="inline" value="inline">inline</option>
+									    <option label="inline-block" value="inline-block">inline-block</option>
+									</select>
+								</td>
+							</tr>
+							<tr>	
+								<td>visibility:</td>
+								<td>
+									<select id="visibility" name="visibility">
+									    <option label="" value=""></option>
+									    <option label="visible" value="visible">visible</option>
+									    <option label="hidden" value="hidden">hidden</option>
+									    <option label="collapse" value="collapse">collapse</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+							
+								<td valign="top" align="left" colspan="2">
+									<table>
+										<tr>
+											<td>overflow-x:</td>
+											<td>
+												<select id="overflow-x" name="overflow-x">
+												    <option label="" value=""></option>
+												    <option label="visible" value="visible">visible</option>
+												    <option label="hidden" value="hidden">hidden</option>
+												    <option label="scroll" value="scroll">scroll</option>
+												    <option label="auto" value="auto">auto</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td>overflow-y:</td>
+											<td>
+												<select id="overflow-y" name="overflow-y">
+												    <option label="" value=""></option>
+												    <option label="visible" value="visible">visible</option>
+												    <option label="hidden" value="hidden">hidden</option>
+												    <option label="scroll" value="scroll">scroll</option>
+												    <option label="auto" value="auto">auto</option>
+												</select>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td  valign="top" align="left" style="border-right:0px solid #212121;border-bottom:1px solid #212121;">
+						<table>
+							<tr>
+								<td>float:</td>
+								<td>
+									<select id="float" name="float">
+									    <option label="" value=""></option>
+									    <option label="none" value="none">none</option>
+									    <option label="left" value="left">left</option>
+									    <option label="right" value="right">right</option>
+									</select>
+								</td>
+							</tr>
+							<tr>	
+								<td>cursor:</td>
+								<td>
+									<select id="cursor" name="cursor">
+									    <option label="" value=""></option>
+									    <option label="auto" value="auto">auto</option>
+									    <option label="pointer" value="pointer">pointer</option>
+									    <option label="move" value="move">move</option>
+									    <option label="progress" value="progress">progress</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td>z-index:</td>
+								<td><input type="text" style="width: 40px;" value="" id="z-index" name="z-index"></td>
+							</tr>
+							<tr>
+								<td>clear</td>
+								<td>
+									<select id="clear" name="clear">
+									    <option label="" value=""></option>
+									    <option label="none" value="none">none</option>
+									    <option label="both" value="both">both</option>
+									    <option label="left" value="left">left</option>
+									    <option label="right" value="right">right</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td>opacity:</td>
+								<td><input type="text" style="width: 40px;" value="" id="opacity" name="opacity"></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div id="css-edit-font" class="cssEdit">
+			<table class="cssAttrTable" style="font-size: 12px;">
+				<tbody><tr>
+					<td align="left" valign="top" style="border-right: 1px solid rgb(33, 33, 33);">
+						<table>
+							<tbody><tr>
+								<td style="border-bottom: 1px solid rgb(33, 33, 33);">Font:</td>
+							</tr>
+							<tr>
+								<td align="left" valign="top">
+									<table>
+										<tbody><tr>
+											<td>font-family:</td>
+											<td>
+												<select id="font-family" name="font-family">
+												    <option label="" value=""></option>
+												    <option label="Verdana" value="Verdana">Verdana</option>
+												    <option label="Courier New" value="Courier New">Courier New</option>
+												    <option label="Arial" value="Arial">Arial</option>
+												    <option label="Comic Sans MS" value="Comic Sans MS">Comic Sans MS</option>
+												    <option label="Lucida Console" value="Lucida Console">Lucida Console</option>
+												    <option label="Times New Roman" value="Times New Roman">Times New Roman</option>
+												    <option label="Courier" value="Courier">Courier</option>
+												    <option label="Century Gothic" value="Century Gothic">Century Gothic</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td>font-size:</td>
+											<td><input type="text" style="width: 40px;" value="" id="font-size" name="font-size"></td>
+										</tr>
+										<tr>
+											<td>font-style:</td>
+											<td>
+												<select id="font-style" name="font-style">
+												    <option label="" value=""></option>
+												    <option label="normal" value="normal">normal</option>
+												    <option label="italic" value="italic">italic</option>
+												    <option label="oblique" value="oblique">oblique</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td>font-weight:</td>
+											<td>
+												<select id="font-weight" name="font-weight">
+												    <option label="" value=""></option>
+												    <option label="normal" value="normal">normal</option>
+												    <option label="bold" value="bold">bold</option>
+												    <option label="bolder" value="bolder">bolder</option>
+												    <option label="lighter" value="lighter">lighter</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td>color:</td>
+											<td><input type="text" style="width: 50px;" class="color" value="" id="color" name="color"></td>
+										</tr>
+									</tbody></table>
+								</td>
+							</tr>
+						</tbody></table>
+					</td>
+					<td align="left" valign="top" style="border-right: 1px solid rgb(33, 33, 33);">
+						<table style="padding: 2px;">
+							<tbody><tr>
+								<td style="border-bottom: 1px solid rgb(33, 33, 33);" colspan="2">Text:</td>
+							</tr>
+							<tr>
+								<td align="left" valign="top">
+									<table>
+										<tbody><tr>
+											<td>direction:</td>
+											<td>
+												<select id="direction" name="direction">
+												    <option label="" value=""></option>
+												    <option label="ltr" value="ltr">ltr</option>
+												    <option label="rtl" value="rtl">rtl</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td>letter-spacing:</td>
+											<td><input type="text" style="width: 40px;" value="" id="letter-spacing" name="letter-spacing"></td>
+										</tr>
+										<tr>
+											<td>line-height:</td>
+											<td><input type="text" style="width: 40px;" value="" id="line-height" name="line-height"></td>
+										</tr>
+										<tr>
+											<td>text-align:</td>
+											<td>
+												<select id="text-align" name="text-align">
+												    <option label="" value=""></option>
+												    <option label="left" value="left">left</option>
+												    <option label="right" value="right">right</option>
+												    <option label="center" value="center">center</option>
+												    <option label="justify" value="justify">justify</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td>vertical-align:</td>
+											<td>
+												<select id="vertical-align" name="vertical-align">
+												    <option label="" value=""></option>
+												    <option label="baseline" value="baseline">baseline</option>
+												    <option label="sub" value="sub">sub</option>
+												    <option label="super" value="super">super</option>
+												    <option label="top" value="top">top</option>
+												    <option label="text-top" value="text-top">text-top</option>
+												    <option label="middle" value="middle">middle</option>
+												    <option label="bottom" value="bottom">bottom</option>
+												    <option label="text-bottom" value="text-bottom">text-bottom</option>
+												</select>
+											</td>
+										</tr>
+									</tbody></table>
+								</td>
+								<td align="left" valign="top">
+									<table>
+										<tbody><tr>
+											<td>text-decoration:</td>
+											<td>
+												<select id="text-decoration" name="text-decoration">
+												    <option label="" value=""></option>
+												    <option label="none" value="none">none</option>
+												    <option label="underline" value="underline">underline</option>
+												    <option label="overline" value="overline">overline</option>
+												    <option label="line-through" value="line-through">line-through</option>
+												    <option label="blink" value="blink">blink</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td>word-spacing:</td>
+											<td><input type="text" style="width: 50px;" value="" id="word-spacing" name="word-spacing"></td>
+										</tr>
+										<tr>
+											<td>white-space:</td>
+											<td>
+												<select id="white-space" name="white-space">
+												    <option label="" value=""></option>
+												    <option label="normal" value="normal">normal</option>
+												    <option label="nowrap" value="nowrap">nowrap</option>
+												    <option label="pre" value="pre">pre</option>
+												    <option label="pre-line" value="pre-line">pre-line</option>
+												    <option label="pre-wrap" value="pre-wrap">pre-wrap</option>
+												    <option label="inherit" value="inherit">inherit</option>
+												</select>
+											</td>
+										</tr>
+									</tbody></table>
+								</td>
+							</tr>
+						</tbody></table>
+					</td>
+					<td align="left" valign="top" style="border-right: 0px solid rgb(33, 33, 33);">
+						<table style="padding: 2px;">
+							<tbody><tr>
+								<td style="border-bottom: 1px solid rgb(33, 33, 33);" colspan="2">Content:</td>
+							</tr>
+							<tr>
+								<td align="left" valign="top">
+									<table>
+										<tbody><tr>
+											<td valign="top">Content:</td>
+											<td valign="top"><textarea cols="80" rows="24" style="width: 200px; height: 100px;" id="content" name="content"></textarea></td>
+										</tr>
+									</tbody></table>
+								</td>
+							</tr>
+						</tbody></table>
+					</td>
+				</tr>
+			</tbody></table>
+		</div>
+		<div id="css-edit-list" class="cssEdit">
+			<table class="cssAttrTable">
+				<tbody><tr>
+					<td align="left" valign="top" style="border-right: 0px solid rgb(33, 33, 33);">
+						<table>
+							<tbody><tr>
+								<td style="border-bottom: 1px solid rgb(33, 33, 33);">List:</td>
+							</tr>
+							<tr>
+								<td align="left" valign="top" colspan="2">
+									<table>
+										<tbody><tr>
+											<td>list-style-image:</td>
+											<td>
+												<input type="text" size="20" class="fileInput" value="" id="list-style-image" name="list-style-image">												<button value="browse" id="browse-list-style-image" class="BrowseServer" type="button" title="browse">browse</button>
+											</td>
+										</tr>
+										<tr>
+											<td>list-style-position:</td>
+											<td>
+												<select id="list-style-position" name="list-style-position">
+												    <option label="" value=""></option>
+												    <option label="inside" value="inside">inside</option>
+												    <option label="outside" value="outside">outside</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td>list-style-type:</td>
+											<td>
+												<select id="list-style-type" name="list-style-type">
+												    <option label="" value=""></option>
+												    <option label="none" value="none">none</option>
+												    <option label="circle" value="circle">circle</option>
+												    <option label="disc" value="disc">disc</option>
+												    <option label="square" value="square">square</option>
+												    <option label="armenian" value="armenian">armenian</option>
+												    <option label="decimal" value="decimal">decimal</option>
+												    <option label="decimal-leading-zero" value="decimal-leading-zero">decimal-leading-zero</option>
+												    <option label="georgian" value="georgian">georgian</option>
+												    <option label="lower-alpha" value="lower-alpha">lower-alpha</option>
+												    <option label="lower-greek" value="lower-greek">lower-greek</option>
+												    <option label="lower-latin" value="lower-latin">lower-latin</option>
+												    <option label="lower-roman" value="lower-roman">lower-roman</option>
+												    <option label="upper-alpha" value="upper-alpha">upper-alpha</option>
+												    <option label="upper-latin" value="upper-latin">upper-latin</option>
+												    <option label="upper-roman" value="upper-roman">upper-roman</option>
+												</select>
+											</td>
+										</tr>
+									</tbody></table>
+								</td>
+							</tr>
+						</tbody></table>
+					</td>
+				</tr>
+			</tbody></table>
+		</div>
+	</div>
+</form>
+
+<!--<ul id="myMenu" >
+    <div id="cssSelectorTree"></div>
+	<li class="edit" style="float: left;">
+		<a href="#edit">Edit</a>
+	</li>
+	<li class="cancel" style="float: left;margin:0 0px 0 8px;">
+		<a href="#cancel">cancel</a>
+	</li>
+	<li class="find" style="float: left;margin:0 0px 0 8px;">
+		<a href="#find">find</a>
+	</li>
+</ul>-->
+
+<script src="editor/js/cssAttr.js"  LANGUAGE="JavaScript"></script>
+<script src="editor/js/active-inspecting.js"  LANGUAGE="JavaScript"></script>
+<script src="editor/js/jquery.scrollTo-1.4.2-min.js"  LANGUAGE="JavaScript"></script>
+
+<script type="text/javascript">
+var interact = 'false';
+var contextObj = '';
+var topDocumentScroll = ''; 
+var top = 0;
+var left = 0;
+var once = false;
+
+$(document).ready(function(){
+	
+	$('#attrCategories a').click(function(){
+	
+	var id = 'css-edit-' +  $(this).attr('id').replace('attr-', '');
+	$('.cssEdit').css('display', 'none');
+	
+	$('#attrCategories ul li').removeClass('selected');	
+	$(this).parent().addClass('selected');
+	
+	$('#' + id).css('display' ,'block');
+	
+	return false;
+});	
+	
+	
+	$('#cssInteract').toggle(function(){
+   	
+   		interact = 'true';
+   		$('#interactSize').css( 'display', 'block' );
+   		$('#interactData').css( 'display', 'block' );
+   		$(this).html('Stop');
+   		activeInspecting();
+   		$('#admin-iframe').load(function(){
+   			if(interact == 'true'){
+   				activeInspecting();
+   			}
+   		});
+   
+   },function(){
+  	 	interact = 'false';
+   		$(this).html('Interact');
+   		$('#interactData').css( 'display', 'none' );
+   		$('#interactSize').css( 'display', 'none' );
+   		$(this).css('outline','0px solid red');
+   		
+   		
+   		$('#myMenu').hide();
+   		$('#admin-iframe').contents().unbind('click');
+   		$('#admin-iframe').contents().unbind('mousedown');
+   		$('#admin-iframe').contents().unbind('mouseup');
+   		$('#admin-iframe').contents().unbind('mouseover');
+   		$('#admin-iframe').contents().unbind('mouseout');
+   });
+   
+  
+  
+});
+ 	
+  
+</script>
+

@@ -1,0 +1,12 @@
+name = Embedded Wave Field
+description = Defines a field type for displaying waves from third party providers, such as Google or ...
+dependencies[] = emfield
+package = Media
+core = 6.x
+
+; Information added by Drupal.org packaging script on 2016-02-09
+version = "6.x-2.7"
+core = "6.x"
+project = "emfield"
+datestamp = "1455050677"
+

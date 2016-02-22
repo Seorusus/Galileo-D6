@@ -1,0 +1,174 @@
+<?php
+
+/**
+ * @file
+ * The main file for the module.
+ */
+
+require_once 'splashify.display.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function splashify_menu() {
+  $items = array();
+
+  // If they specify What: Enter Text or What: Text Full Screen, this is the
+  // page that will come up.
+  $items['splash'] = array(
+    'title' => 'Splash',
+    'page callback' => 'splashify_display_splashtext',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  // Define the admin area.
+  $items['admin/settings/splashify'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('splashify_admin_when_form'),
+    'title' => 'Splashify',
+    'description' => 'Configuration area for the Splashify system.',
+    'file' => 'admin/splashify.admin.when.inc',
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('access splashify admin'),
+  );
+
+  $items['admin/settings/splashify/when'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('splashify_admin_when_form'),
+    'title' => 'When',
+    'file' => 'admin/splashify.admin.when.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'access arguments' => array('access splashify admin'),
+  );
+
+  $items['admin/settings/splashify/where'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('splashify_admin_where_form'),
+    'title' => 'Where',
+    'file' => 'admin/splashify.admin.where.inc',
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('access splashify admin'),
+  );
+
+  $items['admin/settings/splashify/what'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('splashify_admin_what_form'),
+    'title' => 'What',
+    'file' => 'admin/splashify.admin.what.inc',
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('access splashify admin'),
+  );
+
+  $items['admin/settings/splashify/how'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('splashify_admin_how_form'),
+    'title' => 'How',
+    'file' => 'admin/splashify.admin.how.inc',
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('access splashify admin'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_perm().
+ */
+function splashify_perm() {
+  return array('access splashify admin');
+}
+
+/**
+ * Gets the version of jStorage library.
+ */
+function _splashify_jstorage_version($library, $version) {
+  return $version;
+}
+
+/**
+ * Detects whether the variant is installed or not.
+ *
+ * Determines if the JS file exists.
+ */
+function _splashify_test_installed($library, $name, $args) {
+  // Make sure the file exists.
+  $path = DRUPAL_ROOT . '/' . $library['library path'] . '/';
+  $file = file_exists($path . 'jstorage.min.js');
+  if (!$file) {
+    return FALSE;
+  }
+  else {
+    return TRUE;
+  }
+}
+
+/**
+ * Implements hook_help().
+ */
+function splashify_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#splashify':
+      $output = '';
+      $output .= '<h3>' . t('Splashify Help') . '</h3>';
+      $output .= '<h4>' . t('What do we consider a splash page?') . '</h4>';
+      $output .= '<p>' . t("We define a splash page as being content that shows up at a specified interval, at a specified location, one time. If someone goes to a certain page for the first time, we want to make sure the splash content shows up. But if the person is coming from an internal link on the site, we don't want the splash content to show up over and over again (otherwise, the splash page would become a nuisance).") . '</p>';
+      $output .= '<p>' . t('We determine how often the splash page should show up by what is defined under the "When" tab.') . '</p>';
+
+      $output .= '<h3>' . t('Caching') . '</h3>';
+      $output .= '<p>' . t('The only default cache settings that we found to break the splash functionality is if you set "Cache pages for anonymous users" to be on. This will cause the same splash page to show up over and over again for anonymous users.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Gets the path to the folder in which the requested library is expected
+ * to live.
+ *
+ * This is adapted from jquery_ui_get_path() in the jQuery UI module.
+ *
+ * @param string $library_name The name of the library (e.g., 'jstorage', not
+ * 'jstorage.min.js')
+ * @return mixed $path The path to the requested library's folder, or FALSE
+ */
+function splashify_get_library_path($library_name) {
+  static $path;
+
+  if (isset($path)) {
+    return $path;
+  }
+  $path = FALSE;
+
+  // Libraries API integration.
+  if (function_exists('libraries_get_path')) {
+    $path = libraries_get_path($library_name);
+    // Libraries API 1.x returns a default path; 2.x returns FALSE.
+    if ($path !== FALSE && !file_exists($path)) {
+      $path = FALSE;
+    }
+  }
+  // Manually check sites/all/libraries in case Libraries API is not available.
+  elseif (file_exists('./sites/all/libraries/' . $library_name)) {
+    $path = 'sites/all/libraries/' . $library_name;
+  }
+
+  // Check the module directory for backwards compatibility if other methods
+  // failed.
+  if (!$path) {
+    // drupal_get_path() is not available during Drupal installation.
+    if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'install') {
+      $path = drupal_substr(dirname(__FILE__), drupal_strlen(getcwd()) + 1);
+      $path = strtr($path, '\\', '/');
+      $path .= '/' . $library_name;
+    }
+    else {
+      // Unlikely it would be here, but may as well check
+      $path = drupal_get_path('module', 'splashify') . '/' . $library_name;
+    }
+    if (!file_exists($path)) {
+      $path = FALSE;
+    }
+  }
+
+  return $path;
+}

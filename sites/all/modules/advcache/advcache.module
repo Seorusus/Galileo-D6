@@ -1,0 +1,100 @@
+<?php
+// $Id: advcache.module,v 1.11.2.1 2009/02/26 14:07:09 mikejoconnor Exp $
+
+function advcache_taxonomy($op, $type, $object=NULL) {
+  if (is_null($object)) {
+    return;
+  }
+  $object = (array)$object;
+
+  switch ($type) {
+    case 'term':
+    $keys[] = 'term::'. $object['tid'];
+    if ($op == 'insert' || $op == 'delete' || $op == 'update') {
+      cache_clear_all('*', 'cache_taxonomy', TRUE);
+      if (module_exists('forum') && $object['vid'] == _forum_get_vid()) {
+        cache_clear_all('*', 'cache_forum', TRUE);
+      }
+    }
+    break;
+
+    case 'vocabulary':
+    $keys[] = 'tree::'. $object['vid'];
+    $keys[] = 'vocabulary::'. $object['vid'];
+
+    if ($op == 'insert' || $op == 'delete' || $op == 'update') {
+      if (module_exists('forum') && $object['vid'] == _forum_get_vid()) {
+        cache_clear_all('*', 'cache_forum', TRUE);
+      }
+    }
+    break;
+
+    // we only know how to handle 'term' and 'vocabulary', so return otherwise.
+    default:
+    return;
+  }
+  switch ($op) {
+    case 'delete':
+    case 'update':
+    foreach ($keys as $key) {
+      cache_clear_all($key, 'cache_taxonomy');
+    }
+    break;
+  }
+
+}
+
+function advcache_nodeapi($node, $op) {
+  switch ($op) {
+    case 'update':
+    case 'insert':
+    case 'delete':              
+      cache_clear_all("node/{$node->nid}", 'cache_node');
+      
+      // It is unfortunate that we have to use the wildcard here, but it
+      // comes from the fact that the signature to taxonomy_node_get_terms
+      // has a $key parameter which goes into building the cache key, which
+      // we can't reliably reconstruct here.
+      cache_clear_all('node::'. $node->nid, 'cache_taxonomy', TRUE);
+      if ($node->type == 'forum') {
+        cache_clear_all('*', 'cache_forum', TRUE);
+      }
+      break;
+  }
+}
+
+function advcache_comment($a1, $op) {
+  switch ($op) {
+    case 'delete':
+    case 'update':
+    case 'insert':
+    case 'publish':
+    case 'unpublish':
+      // hook_comment is inconsistent with the type it passes in.
+      $a1 = (object)$a1;
+
+      $nid = $a1->nid;
+
+      cache_clear_all('nid-'. $nid, 'cache_comment', TRUE);
+
+      $node = node_load($nid);
+      if ($node->type == 'forum') {
+        cache_clear_all('*', 'cache_forum', TRUE);
+      }
+      break;
+  }
+}
+
+function advcache_devel_caches() {
+  return array('cache_advcache_block', 'cache_comment', 'cache_forum', 'cache_node', 'cache_path', 'cache_search', 'cache_taxonomy');
+}
+
+/**
+ * Implementation of hook_exit().
+ *
+ * Call the caching code now resident in drupal_path_lookup(). This will only set the cache if
+ * it was dirtied curing this pageload, or not found for the current request_uri.
+ */
+function advcache_exit() {
+  //drupal_lookup_path('cache');
+}

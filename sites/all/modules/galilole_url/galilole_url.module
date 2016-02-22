@@ -1,0 +1,605 @@
+<?php
+// $Id: galilole_url.module,v 1.1.2.1 2009/10/11 20:41:11 roetzi Exp $
+
+
+
+
+/**
+ * Implements hook_init().
+ */
+function galilole_url_init() {
+//drupal_add_js(drupal_get_path('module', 'galilole_url') .'./admin.js');
+
+//	if ($_SERVER['REMOTE_ADDR'] == '81.218.170.242') {
+//
+//		$list = module_list(false,false,false);
+//
+//			$now2 = db_query('select now()');
+//			$now22 = db_fetch_object($now2);
+//			echo "<br>=====================";
+//			echo "<br>=====================";
+//			echo "<br>=====================";
+//			echo "<br>=====================";
+//			tr($now22);
+//			tr(variable_get('date_default_timezone' , 'not existing'));
+//			tr($list);
+//
+//		}
+
+  if (defined('MAINTENANCE_MODE')) {
+    return;
+  }
+
+  $uri =  $_SERVER['REQUEST_URI'];
+
+  if( isset( $_GET['advice_id']) ){
+
+  		$where =  "old_url like '%s'" ;
+	  	$args = array( '%%' .  'advice_id=' . $_GET['advice_id'] . '%%' );
+
+	  	$rid_query = db_query("SELECT new_url FROM {url_redirect} WHERE $where  ORDER BY id DESC" ,  $args );
+
+	  	$rids = array();
+		while ($rid = db_result($rid_query)) {
+			$rids[] = $rid;
+		}
+
+		if( sizeof($rids) > 0 ){
+			$rid = $rids[0];
+
+			header('Location: /'. $rid, TRUE, 301 );
+
+		}
+
+  	} elseif ( isset( $_GET['pic_id']) ){
+
+  		$where =  "old_url like '%s'" ;
+	  	$args = array( '%%' .  'pic_id=' . $_GET['pic_id'] . '%%' );
+
+
+	  	$rid_query = db_query("SELECT new_url FROM {url_redirect} WHERE $where  ORDER BY id DESC" ,  $args );
+
+	  	$rids = array();
+		while ($rid = db_result($rid_query)) {
+			$rids[] = $rid;
+		}
+
+		if( sizeof($rids) > 0 ){
+			$rid = $rids[0];
+
+			header('Location: /'. $rid, TRUE, 301 );
+
+		}
+
+
+  	} elseif (  isset( $_GET['cat']) && isset( $_GET['type'] ) &&  $_GET['type'] == 'show_gallery_by_cat' ){
+
+  		$where =  "old_url like '%s' AND old_url like '%s'" ;
+	  	$args = array( '%%' .  'cat=' . $_GET['cat'] . '%%'  , '%%' .  'type=show_gallery_by_cat' . '%%');
+
+
+
+	  	$rid_query = db_query("SELECT new_url FROM {url_redirect} WHERE $where   ORDER BY id DESC" ,  $args );
+	  	$rids = array();
+		while ($rid = db_result($rid_query)) {
+			$rids[] = $rid;
+		}
+
+		if( sizeof($rids) > 0 ){
+			$rid = $rids[0];
+
+			header('Location: /'. $rid, TRUE, 301 );
+
+		}
+
+  	} elseif ( isset( $_GET['page_data%5Bid%5D'])){
+
+  		$where =  "old_url like '%s'" ;
+	  	$args = array( '%%' .  'page_data[id]=' . $_GET['page_data%5Bid%5D'] . '%%' );
+
+	  	$rid_query = db_query("SELECT new_url FROM {url_redirect} WHERE $where  ORDER BY id DESC" ,  $args );
+
+	  	$rids = array();
+		while ($rid = db_result($rid_query)) {
+			$rids[] = $rid;
+		}
+
+		if( sizeof($rids) > 0 ){
+			$rid = $rids[0];
+
+			header('Location: /'. $rid, TRUE, 301 );
+
+		}
+  	}
+
+
+
+
+  	/**
+  	 * what if it is the home page ?
+  	 */
+  	global $user;
+  	if( in_array("administrator_user" , $user->roles) ){
+	  	if( isset($_SERVER['HTTP_CACHE_CONTROL']) ){
+	  		if( $_SERVER['HTTP_CACHE_CONTROL'] == 'no-cache'){
+	  			if( $uri != '/'){
+
+	  				if( module_exists('boost')){
+	  					$u = urldecode(substr($uri , 1 ));
+	  					$paths = array( $u );
+	  					boost_cache_expire_derivative($paths, TRUE , TRUE);
+	  				}
+
+	  			}
+	  		}
+	  	}
+  	}
+
+}
+
+
+
+function galilole_url_block($op = 'list', $delta = 0, $edit = array()){
+	switch ($op) {
+
+		case 'list':
+			 $blocks['basketball'] = array(
+		        'info'       => t('קופסת כדורסל לדף הבית'),
+		        'cache'	=> BLOCK_NO_CACHE,
+		      );
+
+      		 $blocks['football'] = array(
+		        'info'       => t('קופסת כדורגל לדף הבית'),
+		        'cache'	=> BLOCK_NO_CACHE,
+		      );
+
+      		$blocks['other-sports'] = array(
+		        'info'       => t('קופסת ענפים שונים לדף הבית'),
+		        'cache'	=> BLOCK_NO_CACHE,
+		      );
+
+      		return $blocks;
+			break;
+
+		case 'view':
+			
+			return array(
+				'subject' => _galilole_url_build_block_title($delta),
+				'content' => _galilole_url_build_block($delta),
+			);
+
+
+			break;
+		default:
+			break;
+	}
+
+
+}
+
+function _galilole_url_build_block_title($delta){
+	$titles = array(
+		'basketball' => t('כדורסל'),
+		'football' => t('כדורגל'),
+		'other-sports' => t('ענפי ספורט שונים'),
+	);
+
+	return $titles[$delta];
+}
+
+
+function _galilole_url_build_block($delta){
+
+//	if ($_SERVER['REMOTE_ADDR'] == '81.218.170.242') {
+//
+//
+//			$now2 = db_query('select now()');
+//			$now22 = db_fetch_object($now2);
+//			echo "<br>=====================";
+//			echo "<br>=====================";
+//			echo "<br>=====================";
+//			echo "<br>=====================";
+//			tr($now22);
+//
+//		}
+
+
+	$vid_tid = array(
+		'basketball' => array('vid' => 10, 'tid' => array(54)),
+		'football' => array('vid' => 10, 'tid' => array(55)),
+		'other-sports' => array('vid' => 10, 'tid' => array(74,36,146,40,41,44,45,51,48,343,43,42,46,49,47,65,101,550,344,491,492,490,488,489,487,493,578,648,649,1097,1664,1672,2047,2080,2081)),
+
+	);
+	$vid = $vid_tid[$delta]['vid'];
+	$tid = $vid_tid[$delta]['tid'];
+
+	$sql = "select n.nid, n.title from {node} as n  join {term_node} as tn on tn.nid= n.nid where n.type='%s' and   tn.tid in ( %s ) ";
+	$result = db_query($sql , 'organic_group' , implode(',' , $tid ) );
+
+	$ogs = array();
+	while ($row = db_fetch_object($result)) {
+		$ogs[] = $row->nid;
+	}
+
+	//print( implode("," , $ogs) );
+
+
+
+	$sql2 = "select distinct n.nid, n.title,
+					cfgd.field_gallry_date_value ,  cfgd.field_gallry_date_value2,
+					cts.field_author_value, cts.field_article_image_fid, cts.field_article_image_list, cts.field_article_image_data, cts.field_article_teaser_value,cts.field_main_sport_ad_flag_value,
+					cfhpi.field_home_promotion_image_fid,  cfhpi.field_home_promotion_image_list ,	cfhpi.field_home_promotion_image_data, now() as now
+			from {node} as n
+			join {og_ancestry} as oga on n.nid = oga.nid
+			join {content_field_gallry_date} as cfgd on n.nid = cfgd.nid
+			join {content_type_story} as cts on n.nid = cts.nid
+			join {content_field_home_promotion_image} as cfhpi on n.nid = cfhpi.nid
+			where oga.group_nid in (%s) and cts.field_main_sport_flag_value <> 0
+			and DATE_ADD(NOW(), INTERVAL 0 HOUR) > cfgd.field_gallry_date_value
+			and DATE_ADD(NOW(), INTERVAL 0 HOUR) < cfgd.field_gallry_date_value2
+			order by field_gallry_date_value desc , n.created desc  ";
+
+
+	$result2 = db_query_range($sql2 , implode("," , $ogs) , 0 , 6);
+	$art_nids = array();
+
+	$out = "";
+
+	$articles = array();
+
+	$fids = array();
+
+
+
+	while ($article = db_fetch_object($result2)) {
+
+//		if ($_SERVER['REMOTE_ADDR'] == '81.218.170.242') {
+//
+//
+//			$now2 = db_query('select now()');
+//			$now22 = db_fetch_object($now2);
+//			echo "<br>=====================";
+//			echo "<br>=====================";
+//			echo "<br>=====================";
+//			echo "<br>=====================";
+//			tr($now22);
+//
+////			if( $delta == 'other-sports'){
+////
+////				tr($article->field_gallry_date_value);
+////				tr($article->now);
+////				//tr($article->SYSDATE);
+////				tr(date('Y-m-d H:i:s'));
+////				echo "<br>=====================";
+////			}
+//
+//			//die();
+//		}
+		//$article->fid = isset( $article->field_article_image_fid ) ? $article->field_article_image_fid :  $article->field_home_promotion_image_fid;
+		$article->fid = isset( $article->field_home_promotion_image_fid ) ? $article->field_home_promotion_image_fid :  $article->field_article_image_fid;		
+		$article->field_article_image_data = unserialize($article->field_article_image_data);
+		$article->file = null;
+
+		if(  $article->fid ){
+			$sql3 = "select * from {files} where fid = %s ";
+			$result3 = db_query($sql3 , $article->fid  );
+
+			$article->file = db_fetch_object( $result3 );
+		}
+		$articles[] = $article;
+
+
+		//$fids[] = $article->fid;
+	}
+
+
+
+
+//	tr($articles);
+	//die();
+
+	foreach ($articles as $article ) {
+		$out .= _galilole_url_theme_item( $article );
+	}
+	//tr ($out);
+	
+	$out .= _galilole_url_theme_footer ($delta);
+
+	//print_r( $art_nids );
+	//die();
+
+	return $out;
+
+	//return 'here content of ' . $delta;
+}
+
+function galilole_url_boost_clear_mobile(  ) {
+	
+//      watchdog('nevo', 'mobile home: !output', array('!output' => BOOST_ROOT_CACHE_DIR . '/m.galilole.org.il'));
+//		_boost_rmdir_rf(BOOST_ROOT_CACHE_DIR . '/m.galilole.org.il',  TRUE, TRUE, TRUE);
+//	    drupal_set_message(t('Boost: mobile cleared.'));
+	drupal_goto("");
+	}
+
+
+
+
+function galilole_url_boost_clear_front(  ){
+
+	$paths = array(
+		'front' => '<front>',
+	);
+
+	boost_cache_expire_derivative($paths, TRUE , TRUE);
+
+	$res  =  boost_drupal_http_request( "http://" . $_SERVER['HTTP_HOST'] . "/", 3, 'GET');
+	sleep(3);
+
+	drupal_goto("");
+
+	return "done";
+}
+function _galilole_url_theme_footer ( $delta){
+	$out = "";
+	$out .= "<div class='view_footer'>";
+	
+	switch ($delta) {
+			case 'basketball':
+			$out .= "<a href='ענפי-ספורט/ספורט/כדורסל' style='text-align: center;'>לכל חדשות הכדורסל</a>";
+			break;
+			case 'football':
+			$out .= "<a  href='ענפי-ספורט/ספורט/כדורגל' style='text-align: center;'>לכל חדשות הכדורגל</a>";
+			break;
+			
+			case 'other-sports':
+			$out .= "<a href='taxonomy/term/1097' style='text-align: center;'>לכל חדשות ענפי הספורט השונים</a>";
+
+			break;
+			
+			default: break;
+	}
+	
+	$out .= "</div>";
+	return $out;
+}
+
+function tr( $item ){
+	echo "<pre>";
+	print_r( $item );
+	echo "</pre>";
+}
+
+function _galilole_url_theme_item( $item ){
+
+	global $theme ;
+	$preset = 'showcase_thumb';
+
+	if (!strcmp($theme,'galilm')) {
+		$preset = 'image_thumbnail';
+	}
+
+	//$default_filepath = 'sites/default/files/world_of_basketball_by_rjonesdesign_8.jpg';
+
+	$length = 155;
+
+	$path = $item->file->filepath ? $item->file->filepath:false;
+	if($path){
+	$img = theme_imagecache($preset,$path , $item->title, $item->title);
+	$img_with_link = l($img , "node/$item->nid" , array('html' => true));
+	}else{
+		$img_with_link = '';
+	}
+	$out = "";
+
+	$out .= "<a href='node/$item->nid'><div class='sportListImage'>";
+	$out .= $img;
+	$out .= "</div>";
+	$out .= "<div class='sportListTeaser'>";
+
+	$body = strip_tags($item->field_article_teaser_value);
+	$body = mb_substr($body,0,$length,'utf-8') . (mb_strlen($body,'utf-8')>$length ? "..." :" ") ;
+//	$out .= "<div class='title'>" . l($item->title , "node/$item->nid" ) .  "</div>";
+	$out .= "<div class='title'>" . $item->title . "</div>";
+//	$out .= "<div class='title'>" . variable_get('theme_default','none') .  "</div>";
+	if (variable_get('theme_default','none') == 'galilm') {$out .= "<div class='views-field-view-node'>" . $item->title .  "</div>"; }
+	$out .= "<div class='body'>" . $body . "</div></a>";
+	
+	
+	//different style for advertisement 
+	if ($item->field_main_sport_ad_flag_value) {
+
+	$out .= "<div class='info-bkg'>";
+    $out .= "<div class='addnote'> (תוכן שיווקי)</div>";
+
+	$out .=  $item->field_author_value;
+
+	$out .= "<span class='date-display-single'>". format_date(strtotime($item->field_gallry_date_value)+(3600*3), 'medium', '', NULL, 'he') . "</span>";
+
+	$out .= "</div>";
+
+	//$out .= "<div>$item->nid</div>";
+	//$out .= "<div>$item->field_article_image_fid</div>";
+	$out .= "</div>";
+
+	$out="<div class='views-row-bkg'>$out</div>";	
+
+	}
+	else
+	{
+	$out .= "<div class='info'>";
+//	$out .= "&nbsp;&nbsp;"."מאת: " ;
+	$out .=  $item->field_author_value;
+
+//	format_date($item->field_gallry_date_value, 'medium', '', NULL, 'he') ;
+//	$out .= "<span class='date-display-single'>".date('d.m.Y'  , strtotime($item->field_gallry_date_value)+(3600*3)) . "</span>";
+	$out .= "<span class='date-display-single'>". format_date(strtotime($item->field_gallry_date_value)+(3600*3), 'medium', '', NULL, 'he') . "</span>";
+	
+
+	$out .= "</div>";
+
+	//$out .= "<div>$item->nid</div>";
+	//$out .= "<div>$item->field_article_image_fid</div>";
+	$out .= "</div>";
+
+	$out = "<div class='views-row'>$out</div>";
+
+	}
+	return $out;
+
+}
+
+
+function galilole_url_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
+  //return;
+  switch ($op) {
+
+    case 'view':
+    	if( $node->type == 'story'){
+
+    		$list = array();
+    		$show = false;
+    		foreach ($node->field_article_releted_gallerys as $k => $gallery){
+				$galleryObj = node_load($gallery['nid']);
+				$photographer = $galleryObj->field_gallery_photograper;
+				$show = (null != $photographer) ? true : $show;
+				$list[] = l($galleryObj->title , 'node/' . $galleryObj->nid  ) . "&nbsp;&nbsp;צילום:&nbsp;" .$photographer[0]['value'];
+			}
+			if($show){
+	    		$out = "<div id='stroy-noderefernce'><b>גלריית תמונות:</b> <br>" . implode("<br>" , $list ) . "</div>";
+
+	    		$node->content['field_article_releted_gallerys']= array('#value' => $out , '#weight' => 2);
+			}
+    	}
+      break;
+
+  }
+
+}
+
+
+
+function galilole_url_menu() {
+
+	$items = array();
+	 $items['galilolehomepage'] = array(
+	    //'title callback' => 'node_page_title',
+	    //'title arguments' => array(1),
+	    'page callback' => 'galilole_url_page_default',
+	    //'page arguments' => array(1),
+	   // 'access callback' => 'node_access',
+	    //'access arguments' => array('view', 1),
+	    'access arguments' => array('access content'),
+	    'type' => MENU_CALLBACK);
+
+
+
+	 $items['front/cache/delete'] = array(
+	    //'title callback' => 'node_page_title',
+	    //'title arguments' => array(1),
+	    'page callback' => 'galilole_url_boost_clear_front',
+	    //'page arguments' => array(1),
+	   // 'access callback' => 'node_access',
+	    //'access arguments' => array('view', 1),
+	    'access arguments' => array('access content'),
+	    'type' => MENU_CALLBACK);
+
+	 $items['front/cache/delete-mobile'] = array(
+	    //'title callback' => 'node_page_title',
+	    //'title arguments' => array(1),
+	    'page callback' => 'galilole_url_boost_clear_mobile',
+	    //'page arguments' => array(1),
+	   // 'access callback' => 'node_access',
+	    //'access arguments' => array('view', 1),
+	    'access arguments' => array('access content'),
+	    'type' => MENU_CALLBACK);
+
+
+	 $items['galilolefix'] = array(
+	    //'title callback' => 'node_page_title',
+	    //'title arguments' => array(1),
+	    'page callback' => 'galilole_url_fix',
+	    //'page arguments' => array(1),
+	   // 'access callback' => 'node_access',
+	    //'access arguments' => array('view', 1),
+	    'access arguments' => array('access content'),
+	    'type' => MENU_CALLBACK);
+
+	return $items;
+}
+
+
+function galilole_url_page_default() {
+
+//
+//	if ($_SERVER['REMOTE_ADDR'] == '81.218.170.242') {
+//
+//
+//			$now2 = db_query('select now()');
+//			$now22 = db_fetch_object($now2);
+//			echo "<br>=========page default============";
+//			echo "<br>=====================";
+//			echo "<br>=====================";
+//			echo "<br>=====================";
+//			tr($now22);
+//
+//		}
+
+
+
+//	$list = module_implements('cron');
+//	print_r($list);
+//	die();
+	return '';
+
+}
+
+function galilole_url_fix(){
+
+	$sql = "select * from content_field_gallery_image where field_gallery_image_data is null ";
+
+	$result = db_query($sql);
+	while ($r = db_fetch_Object($result)) {
+		echo $r->nid . "<br>";
+		$node = node_load($r->nid);
+		$node->field_gallery_image[0]['data'] = array('alt' => $node->title, 'title' => $node->title);
+		node_save($node);
+//		$sql2 = "select * from node_galleries where nid = %s ";
+//		$result2 = db_query($sql2 , $r->nid);
+//		$row = db_fetch_Object($result2);
+//		if( $row ){
+//			echo $row->fid . "<br>";
+//			//db_query("UPDATE content_field_gallery_image SET field_gallery_image_fid = %s where nid = %s" , $row->fid , $r->nid );
+//		} else {
+//			echo "=======" . "<br>";
+//		}
+	}
+	// `easysite_galiloleD`.`` SET `field_gallery_image_fid` = '1' WHERE `content_field_gallery_image`.`vid` =242 AND `content_field_gallery_image`.`delta` =0;
+
+	return "yes !!";
+}
+
+/**
+ * this fixes the boost + loggedin user validation error when searching
+ *
+ * @param unknown_type $form
+ * @param unknown_type $form_state
+ * @param unknown_type $form_id
+ */
+function galilole_url_form_alter(&$form, &$form_state, $form_id) {
+
+  switch ($form_id) {
+    case 'search_theme_form':
+      $form['#token'] = FALSE;
+      unset($form['#token']);
+      break;
+  }
+}
+
+//
+//function galilole_url_page() {
+//
+//	echo "here page";
+//
+//	exit();
+//
+//}

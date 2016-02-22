@@ -1,0 +1,10 @@
+name = Varnish 
+description = "Provides integration with the Varnish HTTP accelerator."
+core = 6.x
+package = Caching
+; Information added by drupal.org packaging script on 2013-02-20
+version = "6.x-1.2"
+core = "6.x"
+project = "varnish"
+datestamp = "1361391595"
+

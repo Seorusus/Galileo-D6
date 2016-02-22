@@ -1,0 +1,78 @@
+<?php
+
+/**
+ * @file
+ * Handles installing, uninstalling and the requirements for Splashify.
+ */
+
+require_once('splashify.module');
+
+/**
+ * Implements hook_requirements().
+ *
+ * Make sure the jStorage library is installed on the site.
+ */
+function splashify_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  // Make sure we we can access the jStorage library.
+    $library_path = splashify_get_library_path('jstorage');
+
+    if ($library_path) {
+      // A folder is there, but check that the file actually exists
+      $path = $_SERVER['DOCUMENT_ROOT'] . '/' . $library_path . '/';
+
+      $file_integrity = file_exists($path . 'jstorage.min.js');
+
+      if (!$file_integrity) {
+        $requirements['splashify_jstorage_integrity'] = array(
+          'title' => $t('Splashify library file integrity'),
+          'description' => $t('Cannot find the file "jstorage.min.js".
+            Splashify will not work correctly without the jStorage library. It
+            has not been enabled. See README.txt for installation
+            instructions.'),
+          'value' => '',
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+    }
+    else {
+      $requirements['splashify_jstorage'] = array(
+        'title' => $t('Splashify'),
+        'description' => $t('The jStorage library could not be found. See the README.txt file for more information.'),
+        'value' => '',
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Deletes all of the variables this module creates via variable_set().
+ */
+function splashify_uninstall() {
+  // Desktop variables.
+  variable_del('splashify_when_desktop_frequency');
+  variable_del('splashify_where_desktop_page');
+  variable_del('splashify_where_desktop_listpages');
+  variable_del('splashify_what_desktop_mode');
+  variable_del('splashify_what_desktop_content');
+  variable_del('splashify_what_desktop_pagetitle');
+  variable_del('splashify_how_desktop_mode');
+  variable_del('splashify_how_desktop_size');
+
+  // Mobile variables.
+  variable_del('splashify_when_mobile');;
+  variable_del('splashify_when_mobile_test');
+  variable_del('splashify_when_mobile_frequency');
+  variable_del('splashify_where_mobile_page');
+  variable_del('splashify_where_mobile_listpages');
+  variable_del('splashify_what_mobile_mode');
+  variable_del('splashify_what_mobile_content');
+  variable_del('splashify_what_mobile_pagetitle');
+  variable_del('splashify_how_mobile_mode');
+}

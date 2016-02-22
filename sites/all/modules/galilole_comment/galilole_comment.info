@@ -1,0 +1,12 @@
+; $Id: filefield_sources.info,v 1.1 2009/04/17 00:20:12 quicksketch Exp $
+name = Galil Ole Comment
+description = Provides Extra Comment funcinality.
+;dependencies[] = filefield
+package = Galil Ole
+core = 6.x
+; Information added by drupal.org packaging script on 2010-08-11
+;version = "6.x-1.2"
+;core = "6.x"
+;project = "galilole_exclence"
+;datestamp = "1281545492"
+

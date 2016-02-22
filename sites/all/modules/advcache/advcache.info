@@ -1,0 +1,12 @@
+; $Id: advcache.info,v 1.3.2.1 2009/02/26 14:07:09 mikejoconnor Exp $
+
+name = Advanced cache
+description = Introduces advanced caching techniques to Drupal core
+package = Caching
+core = "6.x"
+; Information added by drupal.org packaging script on 2010-07-11
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "advcache"
+datestamp = "1278833350"
+

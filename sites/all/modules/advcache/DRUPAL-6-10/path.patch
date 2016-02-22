@@ -1,0 +1,91 @@
+Index: includes/path.inc
+===================================================================
+RCS file: /cvs/drupal/drupal/includes/path.inc,v
+retrieving revision 1.19.2.1
+diff -u -r1.19.2.1 path.inc
+--- includes/path.inc	13 Oct 2008 21:06:41 -0000	1.19.2.1
++++ includes/path.inc	22 Feb 2009 01:09:41 -0000
+@@ -46,7 +46,48 @@
+ function drupal_lookup_path($action, $path = '', $path_language = '') {
+   global $language;
+   // $map is an array with language keys, holding arrays of Drupal paths to alias relations
+-  static $map = array(), $no_src = array(), $count;
++
++  global $base_root;
++  static $map, $no_src, $count, $map_dirty, $no_src_dirty, $map_expire, $no_src_expire;
++
++  $map_cid = 'map_'. $base_root . request_uri();
++  $no_src_cid = 'no_src_'. $base_root . request_uri();
++
++  if (!isset($map)){
++    $cache = cache_get($map_cid, 'cache_path');
++    if ($cache) {
++      $map = $cache->data;
++      $map_expire = $cache->expire;
++    }
++    else {
++      $map = array();
++      $map_dirty = TRUE;
++      $map_expire = time() + (60 * 60 * 24);
++    }
++  }
++  if (!isset($no_src)){
++    $cache = cache_get($no_src_cid, 'cache_path');
++    if ($cache) {
++      $no_src = $cache->data;
++      $no_src_expire = $cache->expire;
++    }
++    else {
++      $no_src = array();
++      $no_src_dirty = TRUE;
++      $no_src_expire = time() + (60 * 60 * 24);
++    }
++  }
++
++  if ($action == 'cache'){
++    if ($map_dirty){
++      cache_set($map_cid, $map, 'cache_path', $map_expire);
++      $map_dirty = FALSE;
++    }
++    if ($no_src_dirty){
++      cache_set($no_src_cid, $no_src, 'cache_path', CACHE_TEMPORARY);
++      $no_src_dirty = FALSE;
++    }
++  }
+ 
+   $path_language = $path_language ? $path_language : $language->language;
+ 
+@@ -59,6 +100,10 @@
+     $map = array();
+     $no_src = array();
+     $count = NULL;
++    cache_clear_all($map_cid, 'cache_path');
++    cache_clear_all($no_src_cid, 'cache_path');
++    $map_dirty = TRUE;
++    $no_src_dirty = TRUE;
+   }
+   elseif ($count > 0 && $path != '') {
+     if ($action == 'alias') {
+@@ -68,6 +113,7 @@
+       // Get the most fitting result falling back with alias without language
+       $alias = db_result(db_query("SELECT dst FROM {url_alias} WHERE src = '%s' AND language IN('%s', '') ORDER BY language DESC", $path, $path_language));
+       $map[$path_language][$path] = $alias;
++      $map_dirty = TRUE;
+       return $alias;
+     }
+     // Check $no_src for this $path in case we've already determined that there
+@@ -79,12 +125,14 @@
+         // Get the most fitting result falling back with alias without language
+         if ($src = db_result(db_query("SELECT src FROM {url_alias} WHERE dst = '%s' AND language IN('%s', '') ORDER BY language DESC", $path, $path_language))) {
+           $map[$path_language][$src] = $path;
++          $map_dirty = TRUE;
+         }
+         else {
+           // We can't record anything into $map because we do not have a valid
+           // index and there is no need because we have not learned anything
+           // about any Drupal path. Thus cache to $no_src.
+           $no_src[$path_language][$path] = TRUE;
++          $no_src_dirty = TRUE;
+         }
+       }
+       return $src;

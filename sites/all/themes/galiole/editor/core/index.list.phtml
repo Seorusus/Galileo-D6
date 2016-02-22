@@ -1,0 +1,369 @@
+<script type="text/javascript">
+
+var currentSelector;
+var selectorName;
+var currentFile = false;
+var currentPath = false;
+var editor;
+var stayopen = 'false';
+var previeousSel = '';
+var currentSel = '';
+
+var tabNo =1;
+function selectorClick(){
+	$('.css-selctor').each(function(){
+		$(this).css('background-color', '');
+	});
+	$(this).css('background-color', '#FFF829');
+	$('#attributes :input').each(function(){
+		$(this).val('');
+	});
+	var id = $(this).attr('id');
+	var selector = $(this).text();
+	selectorName = $(this).text();
+	id = id.replace('css-selctor-' , '');
+	
+	currentSelector = id;
+	
+	tabNo++;
+	$('.easyCss').css('cursor', 'wait');
+	
+	$('#AddSelectorName').val($(this).text());
+	$('#attributes #selector').val($(this).text());
+	
+	
+	
+	
+	$.post("editor/core/controller.php", { selector: selector, file:currentFile },
+	  function(data){
+	  	$('.jPicker').remove();
+	  	for( var i in data ){
+	  		var attr = i;
+	  		if( attr.match('image') ){
+	  			var val =  data[i].replace('url("', "").replace('")',"");
+	  			$('#'+i).val(val);
+	  		}else if(attr.match('color') ){
+	  			var val =  data[i].replace('#', '');
+	  			$('#'+i).val(val);
+	  			//$('#'+i).trigger('change');
+	  			
+	  		}else{
+	  			$('#'+i).val(data[i]);
+	  		};
+	  		
+	  		
+	  	}
+	  	$('.color').jPicker({color:{alphaSupport: true},images:{clientPath: 'editor/css/images/jpicker-1.1.2/images/' },window:{position:{x:'30',y:'center'},expandable: true,liveUpdate: true}});
+
+	  	 $('.easyCss').css('cursor', 'default');
+	}, "json");
+	$('#selectorUl').scrollTo($(this), {duration:1000});
+	$('#renameSelectorButton').css('display', 'inline');
+	return false;
+	  
+};
+ 
+
+
+$('.css-selctor').live('click' , selectorClick);
+$('.css-selctor').live('mouseover', function(){
+	var element = $(this).text();
+	 if(navigator.userAgent.search(/msie/i)!= -1) {
+	$('#admin-iframe').contents().find(element).css('border', '1px solid red');
+	} else {
+	$('#admin-iframe').contents().find(element).css('outline', '1px solid red');
+	} 
+	
+});
+
+$('.css-selctor').live('mouseout',function(){
+	var element = $(this).text();
+	 if(navigator.userAgent.search(/msie/i)!= -1) {
+	$('#admin-iframe').contents().find(element).css('border', '0px solid red');
+	} else {
+	$('#admin-iframe').contents().find(element).css('outline', '0px solid red');
+	} 
+});
+
+$('#AddSelectorNameButton').click(function(e){
+	e.stopPropagation();
+	var name = $('#AddSelectorName').val();
+	
+  		
+		if( name != ''){
+			$('.easyCss').css('cursor', 'wait');
+			$.post("editor/core/controller.php", { action:'newSelector', selector: name, file:currentFile },
+			  function(data){
+			  	$('.easyCss').css('cursor', 'default'); 
+			  	var id = parseInt($('#selectorUl li:last-child').attr('id').replace('css-selctor-', '')) + 1;
+			  	var newid = 'css-selctor-' + id;
+			  	if($('#selectorUl').find('li#' + newid).is('li') == false){
+					$('#selectorUl').append('<li class="css-selctor" id="' + newid + '"><span>' + name + '</span></li>');
+			  	}
+				$('#'+newid).live('click' , selectorClick);
+				$('#'+newid).trigger('click');
+			  });
+			   
+		} else {
+			alert('please insert html class or id selector');
+		}
+	
+	return false;
+
+});
+
+$('#renameSelectorButton').click(function(e){
+	e.stopPropagation();
+	var name = $('#AddSelectorName').val();
+	
+	if( name != '' ){
+		$('.easyCss').css('cursor', 'wait');
+		$.post("editor/core/controller.php", {  action:'renameSelector', selector: selectorName, newName: name, file:currentFile },
+		  function(data){
+		  	$('.easyCss').css('cursor', 'default');
+		  	if(data == 'ok'){
+			  	
+				$('#css-selctor-' + currentSelector).attr('title', name);
+				$('#css-selctor-' + currentSelector).text(name);
+				$('#css-selctor-' + currentSelector).live('click' , selectorClick);
+				$('#css-selctor-' + currentSelector).trigger('click');
+		  	}
+		  });
+		  
+	} else {
+		alert('please insert html class or id selector');
+	}
+	return false;
+
+});
+
+$('#RemoveSelector').click(function(){
+	
+	if( currentSelector ){
+		 
+		$.post("editor/core/controller.php", {  action:'removeSelector', selector: selectorName, file:currentFile },
+		  function(data){
+		  	$('#css-selctor-' + currentSelector).remove();
+		  	currentSelector = null;
+		  	$('#renameSelectorButton').css('display', 'none');
+		  });
+	  
+	} else {
+		alert('nothing to remove');
+	}
+});
+	
+//	$('.cssFileSelect').change(function(){
+//		var id = $(this).find('option:selected').val();
+//		currentFile = $(this).find('option:selected').text();
+//		//alert(currentFile);
+//		$.post("editor/core/controller.php", { file:currentFile },
+//	    function(data){
+//	       // alert(data);
+//	     $('#selectorUl').html(data);
+//		});
+//		
+//	});
+
+	 $('#fileBrowsers').load( function(){
+        $(this.contentDocument).find('.selectFile').live('click', function(){
+			//alert($(this).text());
+			currentFile = $(this).text();
+			currentPath = $(this).attr('fullpath');
+			$.post("editor/core/controller.php", { file:currentFile ,path:currentPath},
+		    function(data){
+		      
+		     $('#selectorUl').html(data);
+		     
+		     var index = parseInt($('#browseStyles').css('z-index'));
+		      $('#editStyles').css('opacity', 0);
+		      $('#editStyles').css('z-index', index +1);
+		      $('#editStyles').animate({
+			    opacity: 1
+			   }, 500);
+			
+			 $('#browseStyles').css('border-right','1px solid transparent');
+	
+				
+			 
+			});
+			
+			
+			$.post("editor/core/controller.php", {action:'getRaw', file:currentFile },
+			    function(data){
+			      
+			    	$('#rawCssArea').val(data);
+			    	editor = CodeMirror.fromTextArea("rawCssArea", {
+					  parserfile: ["parsecss.js"],
+					  path: "editor/js/codeMiror/js/",
+					  width: "800px",
+					  saveFunction: saveRaw,
+					  cursorActivity: showRaw,
+					  iframeClass: 'rawiframe',
+					  stylesheet: "editor/js/codeMiror/css/csscolors.css"
+					});
+			    	
+//			    	editAreaLoader.init({
+//						id: "rawCssArea" // id of the textarea to transform
+//						,start_highlight: true
+//						,allow_toggle: false
+//						,language: "en"
+//						,syntax: "html"
+//						//,toolbar: "search, go_to_line, |, undo, redo, |, select_font, |, syntax_selection, |, change_smooth_selection, highlight, reset_highlight, |, help"
+//						//,syntax_selection_allow: "css,html"
+//						//,is_multi_files: false
+////						,EA_load_callback: "editAreaLoaded"
+//						,show_line_colors: true
+//					}); 
+//
+//	   				editAreaLoader.setValue("rawCssArea", data);
+				});
+			
+			
+			
+			
+		});
+    });
+
+//    $('#fileBrowsers').load( function(){
+//        $(this.contentDocument).find('.selectFile').live('click', function(){
+//			//alert($(this).text());
+//			currentFile = $(this).text();
+//			currentPath = $(this).attr('fullpath');
+//			$.post("editor/core/controller.php", { file:currentFile ,path:currentPath},
+//		    function(data){
+//		      
+//		     $('#selectorUl').html(data);
+//		     
+//		     var index = parseInt($('#browseStyles').css('z-index'));
+//		      $('#editStyles').css('opacity', 0);
+//		      $('#editStyles').css('z-index', index +1);
+//		      $('#editStyles').animate({
+//			    opacity: 1
+//			   }, 500);
+//			
+//			 $('#browseStyles').css('border-right','1px solid transparent');
+//	
+//				
+//			 
+//			});
+//			
+//			
+//			$.post("editor/core/controller.php", {action:'getRaw', file:currentFile },
+//			    function(data){
+//			      
+//			    	$('#rawCssArea').val(data);
+//			    	editor = CodeMirror.fromTextArea("rawCssArea", {
+//					  parserfile: ["parsecss.js"],
+//					  path: "editor/js/codeMiror/js/",
+//					  width: "800px",
+//					  saveFunction: saveRaw,
+//					  cursorActivity: showRaw,
+//					  iframeClass: 'rawiframe',
+//					  stylesheet: "editor/js/codeMiror/css/csscolors.css"
+//					});
+//			    	
+//			    	
+//	   
+//				});
+//			
+//			
+//			
+//			
+//		});
+//    });
+
+
+	
+	
+	function saveRaw(){
+		var newCss = editor.getCode();
+		$.post("editor/core/controller.php", {action:'saveRaw', file:currentFile, newCss:newCss },
+		    function(data){
+		});
+	};
+	
+	function showRaw(){
+		var lineHandler = editor.cursorLine();
+		var firstline = '';
+		var currentline = editor.lineContent(lineHandler);
+		if(currentline.indexOf('{') == -1){
+		while(firstline == ''){
+			lineHandler = editor.prevLine(lineHandler);
+			var prevLin =  editor.lineContent(lineHandler);
+			var line = prevLin.indexOf('{');
+			if(line > -1){
+				var firstline = prevLin;
+			}
+		}
+		}else{
+			firstline = currentline;
+		}
+		var seleor = firstline.replace('{', '');
+		if(currentline.indexOf(':') > -1){
+		var splitline = currentline.split(':');
+		var att = splitline[0].replace(':', '').replace("\t", "").replace("\n", "").trim();
+		var valu = splitline[1].replace(';', '');
+		currentSel = seleor;
+		}else if(currentline.indexOf('{') > -1){
+			var att = '';
+			var valu = '';
+			currentSel = seleor;
+		}else{
+			var att = '';
+			var valu = '';
+			currentSel = '909090';
+		}
+		
+		
+		if( currentSel!= previeousSel && currentSel != ''){
+			$('#admin-iframe').contents().find(previeousSel).css( 'outline' ,  '0px solid red' ); 
+			$('#admin-iframe').contents().find(currentSel).css( 'outline' ,  '1px solid red' ); 
+		}
+	 	$('#admin-iframe').contents().find(seleor).css( att.valueOf() ,  valu.valueOf() ); 
+	 	previeousSel = currentSel;
+		
+	 	
+		console.log(currentSel + ' =? '+ previeousSel + ' -- ' + att + ' ' + valu);
+		
+	};
+	
+	$('#selectors').hover(function(){
+		$('#selectorControl').animate({
+		    left:'35px'
+		   }, 500);
+		   stayopen = 'true';
+	},function(){
+		stayopen = 'false';
+		var fire = setTimeout('cheackStatus()', 300);
+	});
+	
+	$('#selectorControl').mouseenter(function(){
+		stayopen = 'true';
+	}).mouseleave(function(){
+		stayopen = 'false';
+		var fire = setTimeout('cheackStatus()', 300);
+	});
+	
+	function cheackStatus(){
+		
+		if(stayopen == 'false'){
+			$('#selectorControl').animate({
+			    left:'-480px'
+			   }, 500);
+		}
+	}
+</script>
+<div id="selectors" style="position:absolute;z-index:5;left:-1px;padding:20px 0 0 0;min-height:200px; float:left; width:30px;border-right:3px solid #3A51C5;position:relative;">
+	<span style="font-size:17px;left:5px;position:absolute;top:130px;white-space:nowrap;width:20px;white-space:nowrap;webkit-transform: rotate(-90deg); -moz-transform: rotate(-90deg); filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);">Selectors</span>
+</div>
+<div id="selectorControl">
+	<div id="addSelector">
+		 <input type="text" id="AddSelectorName" style="display:inline;" value="Add New Selector"> <input type="button" id="AddSelectorNameButton" value="add" style="display:inline;"/><input type="button" id="renameSelectorButton" value="rename" style="display:none;"/>
+	</div>
+	
+	<ul id="selectorUl" style="height:110px; overflow-y:auto;">
+		
+	</ul>
+	<input type="button" id="RemoveSelector" value="Remove Selected" style="display:inline;"/>
+</div>

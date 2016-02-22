@@ -1,0 +1,11 @@
+name = Performance Logging
+description = Logs detailed and/or summary page generation time and memory consumption for page requests.
+package = Development
+core = 6.x
+
+; Information added by  packaging script on 2013-11-09
+version = "6.x-2.0"
+core = "6.x"
+project = "performance"
+datestamp = "1384025305"
+

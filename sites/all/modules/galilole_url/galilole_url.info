@@ -1,0 +1,15 @@
+; $Id: club_core.info,v 1.1.2.1 2009/10/11 20:41:11 roetzi Exp $
+name = galilole_url
+description = Provides A 301 Redirection from old galilole.org.il urls to new ones.
+package = Galil Ole
+;dependencies[] = views
+scripts[] = admin.js
+version = VERSION
+core = 6.x
+
+; Information added by drupal.org packaging script on 2010-07-11
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "club"
+datestamp = "1278833712"
+
